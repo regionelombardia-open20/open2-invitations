@@ -1,16 +1,16 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\invitations
+ * @package    open20\amos\invitations
  * @category   CategoryName
  */
 
-use lispa\amos\invitations\models\Invitation;
-use lispa\amos\invitations\models\InvitationUser;
+use open20\amos\invitations\models\Invitation;
+use open20\amos\invitations\models\InvitationUser;
 use yii\web\View;
 
 /**
@@ -22,8 +22,11 @@ use yii\web\View;
 $this->title = Yii::t('amosinvitations', '#send-invitation-titile');
 ?>
 <div class="invitation-create">
-    <?= $this->render('_form', [
+<?= $this->render(
+    '_form', 
+    [
         'invitation' => $invitation,
         'invitationUser' => $invitationUser,
-    ]) ?>
+    ]) 
+?>
 </div>

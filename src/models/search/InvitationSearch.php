@@ -1,24 +1,24 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\invitations
+ * @package    open20\amos\invitations
  * @category   CategoryName
  */
 
-namespace lispa\amos\invitations\models\search;
+namespace open20\amos\invitations\models\search;
 
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use lispa\amos\invitations\models\Invitation;
+use open20\amos\invitations\models\Invitation;
 use yii\db\ActiveQuery;
 
 /**
- * InvitationSearch represents the model behind the search form about `lispa\amos\invitations\models\Invitation`.
+ * InvitationSearch represents the model behind the search form about `open20\amos\invitations\models\Invitation`.
  */
 class InvitationSearch extends Invitation
 {
@@ -42,8 +42,8 @@ class InvitationSearch extends Invitation
     {
         /** @var ActiveQuery $query */
         $query = Invitation::find()
-            ->andWhere(['created_by' => Yii::$app->user->id]);
-        $query->orderBy('send ASC, send_time DESC');
+            ->andWhere([Invitation::tableName() . '.created_by' => Yii::$app->user->id])
+            ->orderBy('send ASC, send_time DESC');
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -53,22 +53,24 @@ class InvitationSearch extends Invitation
         if (!($this->load($params, $scope) && $this->validate())) {
             return $dataProvider;
         }
-        if(!empty($this->email)) {
+        
+        if (!empty($this->email)) {
             $query->innerJoinWith('invitationUser')
                 ->andFilterWhere(['like', 'email', $this->email]);
         }
 
+        
         $query->andFilterWhere([
             'id' => $this->id,
             'send_time' => $this->send_time,
             'send' => $this->send,
             'invitation_user_id' => $this->invitation_user_id,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'deleted_at' => $this->deleted_at,
-            'created_by' => $this->created_by,
-            'updated_by' => $this->updated_by,
-            'deleted_by' => $this->deleted_by,
+            'invitation.created_at' => $this->created_at,
+            'invitation.updated_at' => $this->updated_at,
+            'invitation.deleted_at' => $this->deleted_at,
+            'invitation.created_by' => $this->created_by,
+            'invitation.updated_by' => $this->updated_by,
+            'invitation.deleted_by' => $this->deleted_by,
         ]);
 
         $query->andFilterWhere(['like', 'name', $this->name])
@@ -84,6 +86,13 @@ class InvitationSearch extends Invitation
         $query = Invitation::find();
         $query->innerJoinWith('invitationUser');
 
+        if ((isset($params['moduleName'])) && (isset($params['contextModelId']))) {
+            if ($params['moduleName'] == 'community') {
+                $query
+                    ->andWhere(['=', 'context_model_id', $params['contextModelId']]);
+            }
+        }
+        
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'sort' => [
@@ -115,12 +124,12 @@ class InvitationSearch extends Invitation
             'send_time' => $this->send_time,
             'send' => $this->send,
             'invitation_user_id' => $this->invitation_user_id,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'deleted_at' => $this->deleted_at,
-            'created_by' => $this->created_by,
-            'updated_by' => $this->updated_by,
-            'deleted_by' => $this->deleted_by,
+            'invitation.created_at' => $this->created_at,
+            'invitation.updated_at' => $this->updated_at,
+            'invitation.deleted_at' => $this->deleted_at,
+            'invitation.created_by' => $this->created_by,
+            'invitation.updated_by' => $this->updated_by,
+            'invitation.deleted_by' => $this->deleted_by,
         ])->andFilterWhere(['like', 'email', $this->email]);
 
         $query->andFilterWhere(['like', 'name', $this->name])

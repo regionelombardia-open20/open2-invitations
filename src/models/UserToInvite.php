@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
@@ -9,15 +9,15 @@
  * @category   CategoryName
  */
 
-namespace lispa\amos\invitations\models;
+namespace open20\amos\invitations\models;
 
 
-use lispa\amos\invitations\Module;
+use open20\amos\invitations\Module;
 use yii\base\Model;
 
 /**
  * Class UserToInvite
- * @package lispa\amos\invitations\models
+ * @package open20\amos\invitations\models
  */
 class UserToInvite extends Model
 {

@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\invitations
+ * @package    open20\amos\invitations
  * @category   CategoryName
  */
 
-namespace lispa\amos\invitations\models;
+namespace open20\amos\invitations\models;
 
 use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
@@ -19,7 +19,7 @@ use yii\helpers\ArrayHelper;
  * @property string nameSurname
  * This is the model class for table "invitation".
  */
-class Invitation extends \lispa\amos\invitations\models\base\Invitation
+class Invitation extends \open20\amos\invitations\models\base\Invitation
 {
 
     public static function getEditFields()
@@ -78,6 +78,7 @@ class Invitation extends \lispa\amos\invitations\models\base\Invitation
      * Returns the text hint for the specified attribute.
      * @param string $attribute the attribute name
      * @return string the attribute hint
+     * @see attributeHints
      */
     public function getAttributeHint($attribute)
     {

@@ -1,27 +1,25 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\invitations
+ * @package    open20\amos\invitations
  * @category   CategoryName
  */
 
-namespace lispa\amos\invitations;
+namespace open20\amos\invitations;
 
-use lispa\amos\core\module\AmosModule;
-use lispa\amos\core\module\ModuleInterface;
-use lispa\amos\invitations\widgets\icons\WidgetIconAllInvitations;
-use lispa\amos\invitations\widgets\icons\WidgetIconInvitations;
-use lispa\amos\invitations\widgets\icons\WidgetIconInvitationsAll;
-use Yii;
+use open20\amos\core\module\AmosModule;
+use open20\amos\core\module\ModuleInterface;
+use open20\amos\invitations\widgets\icons\WidgetIconInvitations;
+use open20\amos\invitations\widgets\icons\WidgetIconInvitationsAll;
 use yii\helpers\ArrayHelper;
 
 /**
  * Class Module
- * @package lispa\amos\AmosInvitations
+ * @package open20\amos\invitations
  */
 class Module extends AmosModule implements ModuleInterface
 {
@@ -54,7 +52,7 @@ class Module extends AmosModule implements ModuleInterface
     {
         parent::init();
 
-        \Yii::setAlias('@lispa/amos/' . static::getModuleName() . '/controllers', __DIR__ . '/controllers');
+        \Yii::setAlias('@open20/amos/' . static::getModuleName() . '/controllers', __DIR__ . '/controllers');
 
         //Configuration: merge default module configurations loaded from config.php with module configurations set by the application
         $config = require(__DIR__ . DIRECTORY_SEPARATOR . self::$CONFIG_FOLDER . DIRECTORY_SEPARATOR . 'config.php');
@@ -77,7 +75,7 @@ class Module extends AmosModule implements ModuleInterface
      */
     public function getWidgetGraphics()
     {
-        return [ ];
+        return [];
     }
 
     /**
@@ -90,5 +88,4 @@ class Module extends AmosModule implements ModuleInterface
             'InvitationUser' => __NAMESPACE__ . '\\' . 'models\InvitationUser',
         ];
     }
-
 }

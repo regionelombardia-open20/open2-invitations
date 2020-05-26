@@ -1,26 +1,26 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\invitations\widgets
+ * @package    open20\amos\invitations\widgets
  * @category   CategoryName
  */
 
-namespace lispa\amos\invitations\widgets;
+namespace open20\amos\invitations\widgets;
 
-use lispa\amos\core\helpers\Html;
-use lispa\amos\invitations\models\Invitation;
-use lispa\amos\invitations\models\InvitationForm;
-use lispa\amos\invitations\models\InvitationUser;
-use lispa\amos\invitations\Module;
+use open20\amos\core\helpers\Html;
+use open20\amos\invitations\models\Invitation;
+use open20\amos\invitations\models\InvitationForm;
+use open20\amos\invitations\models\InvitationUser;
+use open20\amos\invitations\Module;
 use yii\helpers\ArrayHelper;
 
 /**
  * Class InviteUserWidget
- * @package lispa\amos\invitations\widgets
+ * @package open20\amos\invitations\widgets
  */
 class InviteUserWidget extends \yii\base\Widget
 {

@@ -1,23 +1,23 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\invitations
+ * @package    open20\amos\invitations
  * @category   CategoryName
  */
 
-namespace lispa\amos\invitations\controllers;
+namespace open20\amos\invitations\controllers;
 
-use lispa\amos\admin\AmosAdmin;
-use lispa\amos\invitations\models\GoogleInvitationForm;
-use lispa\amos\invitations\models\Invitation;
-use lispa\amos\invitations\models\InvitationUser;
-use lispa\amos\invitations\models\UserToInvite;
-use lispa\amos\invitations\Module;
-use lispa\amos\invitations\utility\InvitationsUtility;
+use open20\amos\admin\AmosAdmin;
+use open20\amos\invitations\models\GoogleInvitationForm;
+use open20\amos\invitations\models\Invitation;
+use open20\amos\invitations\models\InvitationUser;
+use open20\amos\invitations\models\UserToInvite;
+use open20\amos\invitations\Module;
+use open20\amos\invitations\utility\InvitationsUtility;
 use Yii;
 use yii\data\ArrayDataProvider;
 use yii\filters\AccessControl;
@@ -50,7 +50,9 @@ class InvitationController extends base\InvitationController
                                 'check-email-ajax',
                                 'download-import-template',
                                 'invite-user',
-                                'invite-google'
+                                'invite-google',
+                                'invitations-sent',
+                                're-send'
                             ],
                             'roles' => ['INVITATIONS_ADMINISTRATOR', 'INVITATIONS_BASIC_USER']
                         ],
@@ -58,8 +60,6 @@ class InvitationController extends base\InvitationController
                             'allow' => true,
                             'actions' => [
                                 'index-all',
-                                'invitations-sent',
-                                're-send'
                             ],
                             'roles' => ['INVITATIONS_ADMINISTRATOR']
                         ],
@@ -123,7 +123,7 @@ class InvitationController extends base\InvitationController
      */
     public function actionInviteUser()
     {
-        $view = '@vendor/lispa/amos-invitations/src/widgets/views/invite-user';
+        $view = '@vendor/open20/amos-invitations/src/widgets/views/invite-user';
         $invitation = new Invitation();
         $invitationUser = new InvitationUser();
         $this->layout = false;
@@ -185,6 +185,10 @@ class InvitationController extends base\InvitationController
     public function actionInvitationsSent($id)
     {
         $model = Invitation::findOne($id);
+        if ($this->moduleName && $this->contextModelId) {
+            $model->module_name = $this->moduleName;
+            $model->context_model_id = $this->contextModelId;
+        }
         return $this->renderAjax('_invitations_sent', ['model' => $model]);
     }
 

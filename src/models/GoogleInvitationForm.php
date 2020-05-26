@@ -1,22 +1,22 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\invitations\models
+ * @package    open20\amos\invitations\models
  * @category   CategoryName
  */
 
-namespace lispa\amos\invitations\models;
+namespace open20\amos\invitations\models;
 
-use lispa\amos\invitations\Module;
+use open20\amos\invitations\Module;
 use yii\base\Model;
 
 /**
  * Class GoogleInvitationForm
- * @package lispa\amos\invitations\models
+ * @package open20\amos\invitations\models
  */
 class GoogleInvitationForm extends Model
 {
@@ -32,7 +32,7 @@ class GoogleInvitationForm extends Model
             [['selection', 'message'], 'required'],
             ['selection', 'safe'],
             [['message', 'search'], 'string'],
-            ['message', \lispa\amos\core\validators\StringHtmlValidator::className(), 'max' => 2500],
+            ['message', \open20\amos\core\validators\StringHtmlValidator::className(), 'max' => 2500],
 
         ];
     }

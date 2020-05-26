@@ -1,18 +1,18 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\invitations\models\base
+ * @package    open20\amos\invitations\models\base
  * @category   CategoryName
  */
 
-namespace lispa\amos\invitations\models\base;
+namespace open20\amos\invitations\models\base;
 
-use lispa\amos\core\record\Record;
-use lispa\amos\invitations\Module;
+use open20\amos\core\record\Record;
+use open20\amos\invitations\Module;
 
 /**
  * Class Invitation
@@ -25,6 +25,8 @@ use lispa\amos\invitations\Module;
  * @property string $message
  * @property string $send_time
  * @property integer $send
+ * @property string $module_name
+ * @property integer $context_model_id
  * @property integer $invitation_user_id
  * @property string $created_at
  * @property string $updated_at
@@ -33,9 +35,9 @@ use lispa\amos\invitations\Module;
  * @property integer $updated_by
  * @property integer $deleted_by
  *
- * @property \lispa\amos\invitations\models\InvitationUser $invitationUser
+ * @property \open20\amos\invitations\models\InvitationUser $invitationUser
  *
- * @package lispa\amos\invitations\models\base
+ * @package open20\amos\invitations\models\base
  */
 class Invitation extends Record
 {
@@ -55,10 +57,10 @@ class Invitation extends Record
         return [
             [['message'], 'string'],
             [['send_time', 'created_at', 'updated_at', 'deleted_at'], 'safe'],
-            [['send', 'invitation_user_id', 'created_by', 'updated_by', 'deleted_by'], 'integer'],
+            [['send', 'context_model_id', 'invitation_user_id', 'created_by', 'updated_by', 'deleted_by'], 'integer'],
             [['invitation_user_id', 'message', 'name', 'surname'], 'required'],
-            [['name', 'surname'], 'string', 'max' => 255],
-            [['invitation_user_id'], 'exist', 'skipOnError' => true, 'targetClass' => \lispa\amos\invitations\models\InvitationUser::className(), 'targetAttribute' => ['invitation_user_id' => 'id']],
+            [['name', 'surname','module_name'], 'string', 'max' => 255],
+            [['invitation_user_id'], 'exist', 'skipOnError' => true, 'targetClass' => \open20\amos\invitations\models\InvitationUser::className(), 'targetAttribute' => ['invitation_user_id' => 'id']],
         ];
     }
 
@@ -89,6 +91,6 @@ class Invitation extends Record
      */
     public function getInvitationUser()
     {
-        return $this->hasOne(\lispa\amos\invitations\models\InvitationUser::className(), ['id' => 'invitation_user_id']);
+        return $this->hasOne(\open20\amos\invitations\models\InvitationUser::className(), ['id' => 'invitation_user_id']);
     }
 }

@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\invitations
+ * @package    open20\amos\invitations
  * @category   CategoryName
  */
 
-use lispa\amos\core\migration\AmosMigrationPermissions;
+use open20\amos\core\migration\AmosMigrationPermissions;
 use yii\rbac\Permission;
 
 
@@ -55,18 +55,18 @@ class m180123_162351_invitation_permissions extends AmosMigrationPermissions
                 'parent' => ['INVITATIONS_ADMINISTRATOR']
             ],
             [
-                'name' => \lispa\amos\invitations\rules\ReadOwnInvitationRule::className(),
+                'name' => \open20\amos\invitations\rules\ReadOwnInvitationRule::className(),
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => 'Permesso di READ sul model Invitation',
-                'ruleName' => \lispa\amos\invitations\rules\ReadOwnInvitationRule::className(),
+                'ruleName' => \open20\amos\invitations\rules\ReadOwnInvitationRule::className(),
                 'parent' => ['INVITATIONS_BASIC_USER'],
                 'children' => ['INVITATION_READ']
             ],
             [
-                'name' => \lispa\amos\invitations\rules\UpdateOwnInvitationRule::className(),
+                'name' => \open20\amos\invitations\rules\UpdateOwnInvitationRule::className(),
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => 'Permesso di UPDATE sul model Invitation',
-                'ruleName' => \lispa\amos\invitations\rules\UpdateOwnInvitationRule::className(),
+                'ruleName' => \open20\amos\invitations\rules\UpdateOwnInvitationRule::className(),
                 'parent' => ['INVITATIONS_BASIC_USER'],
                 'children' => ['INVITATION_UPDATE']
             ],

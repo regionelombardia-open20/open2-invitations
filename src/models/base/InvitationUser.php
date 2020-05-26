@@ -1,18 +1,18 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\invitations
+ * @package    open20\amos\invitations
  * @category   CategoryName
  */
 
-namespace lispa\amos\invitations\models\base;
+namespace open20\amos\invitations\models\base;
 
-use lispa\amos\core\record\Record;
-use lispa\amos\invitations\Module;
+use open20\amos\core\record\Record;
+use open20\amos\invitations\Module;
 
 /**
  * This is the base-model class for table "invitation_user".
@@ -26,7 +26,7 @@ use lispa\amos\invitations\Module;
  * @property integer $updated_by
  * @property integer $deleted_by
  *
- * @property \lispa\amos\invitations\models\Invitation[] $invitations
+ * @property \open20\amos\invitations\models\Invitation[] $invitations
  */
 class InvitationUser extends Record
 {
@@ -76,6 +76,6 @@ class InvitationUser extends Record
      */
     public function getInvitations()
     {
-        return $this->hasMany(\lispa\amos\invitations\models\Invitation::className(), ['invitation_user_id' => 'id']);
+        return $this->hasMany(\open20\amos\invitations\models\Invitation::className(), ['invitation_user_id' => 'id']);
     }
 }

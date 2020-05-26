@@ -1,33 +1,34 @@
 {
-  "name": "lispa/amos-invitations",
-  "description": "System to invite persons to platform",
-  "keywords": ["amos", "yii2", "invitations"],
-  "homepage": "http://www.lispa.it/",
-  "type": "component",
-  "proscription": "BSD-3-Clause",
-  "require": {
-    "php": ">=5.4.0",
-    "lispa/amos-core" : "*",
-    "lispa/amos-dashboard" : "*",
-    "lispa/amos-admin" : "*",
-    "lispa/amos-notify" : "*"
-  },
-  "config": {
-    "process-timeout": 1800,
-    "secure-http": false
-  },
-  "extra": {
-    "asset-installer-paths": {
-      "npm-asset-library": "vendor/npm",
-      "bower-asset-library": "vendor/bower"
+    "name": "open20/amos-invitations",
+    "description": "System to invite persons to platform",
+    "keywords": ["amos", "yii2", "invitations"],
+    "homepage": "http://www.open20.it/",
+    "type": "component",
+    "license": "BSD-3-Clause",
+    "require": {
+        "php": ">=5.4.0",
+        "open20/amos-admin": "^2.0.1",
+        "open20/amos-core": "^1.9.58",
+        "open20/amos-dashboard": "^1.8.4",
+        "open20/amos-notify": "^1.4.0",
+        "phpoffice/phpexcel": "^1.8"
+    },
+    "config": {
+        "process-timeout": 1800,
+        "secure-http": false
+    },
+    "extra": {
+        "asset-installer-paths": {
+            "npm-asset-library": "vendor/npm",
+            "bower-asset-library": "vendor/bower"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "open20\\amos\\invitations\\": "src"
+        }
+    },
+    "require-dev": {
+        "yiisoft/yii2-faker": "*"
     }
-  },
-  "autoload": {
-    "psr-4": {
-      "lispa\\amos\\invitations\\": "src"
-    }
-  },
-  "require-dev": {
-    "yiisoft/yii2-faker": "*"
-  }
 }

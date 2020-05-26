@@ -1,30 +1,51 @@
 <?php
 
-use lispa\amos\core\helpers\Html;
+/**
+ * Aria S.p.A.
+ * OPEN 2.0
+ *
+ *
+ * @package    Open20Package
+ * @category   CategoryName
+ */
+
+use open20\amos\core\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /**
  * @var yii\web\View $this
- * @var $model \lispa\amos\invitations\models\Invitation
+ * @var $model \open20\amos\invitations\models\Invitation
  **/
+
+$moduleName = null;
+$contextModelId = null;
+
+$moduleName = $model->module_name;
+$contextModelId = $model->context_model_id ;
  ?>
-<?php $form = \lispa\amos\core\forms\ActiveForm::begin()?>
+
+<?php $form = \open20\amos\core\forms\ActiveForm::begin()?>
     <div class="col-lg-12">
-        <?php echo "<strong>" . \lispa\amos\invitations\Module::t('amosinvitations', 'Name and surname:') . '</strong> ' . $model->nameSurname ?>
+        <?php echo "<strong>" . \open20\amos\invitations\Module::t('amosinvitations', 'Name and surname:') . '</strong> ' . $model->nameSurname ?>
     </div>
     <div class="col-lg-12">
-        <?php echo "<strong>" . \lispa\amos\invitations\Module::t('amosinvitations', 'Invitations sent:') . '</strong> ' . $model->invitationUser->numberNotificationSended;?>
+        <?php echo "<strong>" . \open20\amos\invitations\Module::t('amosinvitations', 'Invitations sent:') . '</strong> ' . $model->invitationUser->numberNotificationSended;?>
     </div>
     <div class="col-lg-12">
         <?php
-        /** @var  $lastInvitationUser \lispa\amos\invitations\models\InvitationUser */
-        $invitationUser = lispa\amos\invitations\models\InvitationUser:: getInvitationUserFromEmail($model->invitationUser->email);
+        /** @var  $lastInvitationUser \open20\amos\invitations\models\InvitationUser */
+        $invitationUser = open20\amos\invitations\models\InvitationUser:: getInvitationUserFromEmail($model->invitationUser->email);
         $invitation = $invitationUser->getInvitations()->orderBy('send_time DESC')->one()
         ?>
-        <?php echo "<strong>" . \lispa\amos\invitations\Module::t('amosinvitations', 'Last invitation sent at:') . '</strong> ' . \Yii::$app->formatter->asDatetime($invitation->send_time) ?>
+        <?php echo "<strong>" . \open20\amos\invitations\Module::t('amosinvitations', 'Last invitation sent at:') . '</strong> ' . \Yii::$app->formatter->asDatetime($invitation->send_time) ?>
     </div>
     <div>
-        <?= Html::a( \lispa\amos\invitations\Module::t('amosinvitations', 'Re-send') , ['/invitations/invitation/re-send', 'id' => $model->id],['class' => 'btn btn-primary pull-right'])?>
-        <?php \lispa\amos\core\forms\CloseSaveButtonWidget::widget(['model' => $model, 'buttonId' => 're-send-button', 'buttonSaveLabel' => \lispa\amos\invitations\Module::t('amosinvitations', 'Send')]); ?>
+        <?= Html::a( \open20\amos\invitations\Module::t('amosinvitations', 'Re-send') , [
+            '/invitations/invitation/re-send',
+            'id' => $model->id,
+            'moduleName' => $moduleName,
+            'contextModelId' => $contextModelId
+        ],['class' => 'btn btn-primary pull-right'])?>
+        <?php \open20\amos\core\forms\CloseSaveButtonWidget::widget(['model' => $model, 'buttonId' => 're-send-button', 'buttonSaveLabel' => \open20\amos\invitations\Module::t('amosinvitations', 'Send')]); ?>
     </div>
-<?php \lispa\amos\core\forms\ActiveForm::end(); ?>
+<?php \open20\amos\core\forms\ActiveForm::end(); ?>

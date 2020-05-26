@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\invitations\i18n\it-IT
+ * @package    open20\amos\invitations\i18n\it-IT
  * @category   CategoryName
  */
 
@@ -16,6 +16,7 @@ return [
     'Are you sure to send this invitation?' => 'Sei sicuro di inviare questo invito?',
     '#are-you-sure-send-all' => 'Sei sicuro di inviare tutti gli inviti selezionati?',
     'Confirm send invitation' => 'Conferma di invio invito',
+    '#create_new_invite' => 'Crea nuovo',
     'here' => 'qui',
     '#hi' => 'Ciao',
     'Import' => 'Importa',
@@ -23,7 +24,7 @@ return [
     'Import invitations' => 'Importa inviti',
     '#import_invitations_not_valid_mails' => 'Verificare le seguenti mail non valide',
     '#import_invitations_users_already_present' => 'Le seguenti email corrispondono ad utenti già presenti in piattaforma',
-    '#introduction_invitation' => 'Puoi invitare via email persone non ancora registrate nella piattaforma Open Innovation ad iscriversi per collaborare con te e con gli altri utenti. É possibile invitare una persona per volta oppure importare i tuoi inviti da file excel e poi inviarli.',
+    '#introduction_invitation' => 'Puoi invitare via email persone non ancora registrate nella piattaforma {platformName} ad iscriversi per collaborare con te e con gli altri utenti. É possibile invitare una persona per volta oppure importare i tuoi inviti da file excel e poi inviarli.',
     'Invitation' => 'Invito',
     'Invitation addressed to {nameSurname}' => 'Invito indirizzato a {nameSurname}',
     'Invitation already sended' => 'Invito già spedito',
@@ -61,12 +62,14 @@ return [
     '#send-invitation-titile' => 'Invia invito',
     '#subject-invite' => 'Open Innovation: una piattaforma per chi fa innovazione aperta',
     'Surname' => 'Cognome',
-    '#text_email_invitation0' => "desidera invitarti a registrarti e collaborare sulla piattaforma di Open Innovation di Regione Lombardia.",
+    '#text_email_invitation0' => "{sender} desidera invitarti a registrarti e collaborare sulla piattaforma {platformName} di Open Innovation di Regione Lombardia.",
     '#text_email_invitation1' => "Per velocizzare l'iscrizione troverai i campi precompilati con i tuoi dati, puoi modificarli in qualsiasi momento. Inoltre, una breve guida ti introdurrà all'utilizzo della piattaforma in modo semplice e veloce.",
-    '#text_email_invitation2' => "Ottieni il massimo dalla piattaforma di Open innovation, incontra altri professionisti, iscriviti alle community e partecipa allo sviluppo di progetti innovativi",
-    '#text_email_invitation3' => "La piattaforma di Open Innovation è uno strumento collaborativo promosso da Regione Lombardia per faciliatare l'incontro fra quanti si occupano di innovazione, con l'obiettivo di mettere a sistema le loro competenze e promuovere la creazione di ecosistemi di innovazione aperti che contribuiscono ad affrontare le sfide strategiche per la crescita della nostra Regione in campo industriale, economico e sociale.",
+    '#text_email_invitation2' => "Ottieni il massimo dalla piattaforma {platformName}, incontra altri professionisti, iscriviti alle community e partecipa allo sviluppo di progetti innovativi",
+    '#text_email_invitation3' => "La piattaforma {platformName} è uno strumento collaborativo promosso da Regione Lombardia per faciliatare l'incontro fra quanti si occupano di innovazione, con l'obiettivo di mettere a sistema le loro competenze e promuovere la creazione di ecosistemi di innovazione aperti che contribuiscono ad affrontare le sfide strategiche per la crescita della nostra Regione in campo industriale, economico e sociale.",
     'This notification was sent?' => 'Invito inviato',
     'Time to send invitation' => 'Data invio',
+    'To manage all invitations to the platform' => 'Gestisci tutti gli inviti alla piattaforma',
+    'To manage invitations to the platform' => 'Gestisci gli inviti alla piattaforma',
     'To this email have already been sent {numInviti} invitations' => 'A questo indirizzo mail sono stati spediti {numInviti} inviti',
     'To this email have already been sent {numInviti} invitations, send the invitation again?' => 'A questa mail sono stati spediti {numInviti} inviti, sei sicuro di inviare questa notifica?',
     'Update and send invitation...' => 'Modifica e invia l\'invito...',
@@ -85,4 +88,5 @@ return [
     'Search' => 'Cerca',
     'Cancel' => 'Annulla',
     '{sentInvitations} invitations sent successfully' => 'Sono stati correttamente spediti {sentInvitations} inviti',
+    'Update and re-send invitation...' => "Modifica ed invia dinuovo l'invito"
 ];

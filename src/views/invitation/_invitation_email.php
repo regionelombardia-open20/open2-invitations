@@ -1,38 +1,62 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\invitations
+ * @package    open20\amos\invitations\views\invitation
  * @category   CategoryName
  */
 
+use open20\amos\admin\models\UserProfile;
+use open20\amos\core\user\User;
+use open20\amos\invitations\Module;
+
 /**
  * @var yii\web\View $this
- * @var lispa\amos\invitations\models\Invitation $invitation
+ * @var open20\amos\invitations\models\Invitation $invitation
  */
 
+/** @var User $loggedUser */
+$loggedUser = \Yii::$app->user->identity;
+
+/** @var UserProfile $profileSender */
+$profileSender = $loggedUser->userProfile;
+
+$appName = Yii::$app->name;
+
+$urlConf = [
+    '/admin/security/register',
+    'name' => $invitation->name,
+    'surname' => $invitation->surname,
+    'email' => $invitation->invitationUser->email,
+    'iuid' => \Yii::$app->user->id
+];
+
+if (!empty($invitation->module_name) && !empty($invitation->context_model_id)) {
+    $urlConf['moduleName'] = $invitation->module_name;
+    $urlConf['contextModelId'] = $invitation->context_model_id;
+}
+
+$url = Yii::$app->urlManager->createAbsoluteUrl($urlConf);
+
 ?>
-
 <div>
-    <?php echo Yii::t('amosinvitations', '#hi') ?> <?= $invitation->getNameSurname()?>,
+    <?= Module::t('amosinvitations', '#hi') . ' ' . $invitation->getNameSurname() ?>,
 </div>
-
-<?php
-$profileSender = \lispa\amos\admin\models\UserProfile::find()->andWhere(['user_id' => \Yii::$app->user->id])->one();
-$url = Yii::$app->urlManager->createAbsoluteUrl(['/admin/security/register', 'name' => $invitation->name, 'surname' => $invitation->surname, 'email' => $invitation->invitationUser->email]); ?>
 <div style="font-weight: normal">
-    <p><?= $profileSender->nomeCognome ." ". Yii::t('amosinvitations', '#text_email_invitation0') ?></p>
-    <div style="color:green"><strong><?= $invitation->message ?></strong> </div>
-    <p style="text-align: center"> <a href="<?=$url?>"><strong><?= Yii::t('amosinvitations', '#registration_page') ?></strong></a> </p>
-    <p><?= Yii::t('amosinvitations', "#text_email_invitation1") ?></p><br>
-    <p style="color:green"><strong><?= Yii::t('amosinvitations', '#text_email_invitation2') ?></strong></p><br>
-    <p><?= Yii::t('amosinvitations', "#text_email_invitation3") ?></p>
-
+    <p><?= Module::t('amosinvitations', '#text_email_invitation0', [
+            'platformName' => $appName,
+            'sender' => $profileSender->nomeCognome
+        ]) ?></p>
+    <div style="color:green"><strong><?= $invitation->message ?></strong></div>
+    <p style="text-align: center"><a href="<?= $url ?>"><strong><?= Module::t('amosinvitations', '#registration_page') ?></strong></a></p>
+    <p><?= Module::t('amosinvitations', "#text_email_invitation1", ['platformName' => $appName]) ?></p><br>
+    <p style="color:green"><strong><?= Module::t('amosinvitations', '#text_email_invitation2', ['platformName' => $appName]) ?></strong></p><br>
+    <p><?= Module::t('amosinvitations', "#text_email_invitation3", ['platformName' => $appName]) ?></p>
 </div>
 
 <div>
-    <?= Yii::t('amosinvitations', '#invitation-email-end', ['site' => Yii::$app->name]) ?>
+    <?= Module::t('amosinvitations', '#invitation-email-end', ['site' => $appName]) ?>
 </div>

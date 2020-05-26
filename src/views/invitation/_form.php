@@ -1,24 +1,24 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\invitations
+ * @package    open20\amos\invitations
  * @category   CategoryName
  */
 
-use lispa\amos\core\forms\ActiveForm;
-use lispa\amos\core\forms\CloseSaveButtonWidget;
-use lispa\amos\core\forms\Tabs;
-use lispa\amos\core\forms\TextEditorWidget;
-use lispa\amos\invitations\Module;
+use open20\amos\core\forms\ActiveForm;
+use open20\amos\core\forms\CloseSaveButtonWidget;
+use open20\amos\core\forms\Tabs;
+use open20\amos\core\forms\TextEditorWidget;
+use open20\amos\invitations\Module;
 
 /**
  * @var yii\web\View $this
- * @var lispa\amos\invitations\models\Invitation $invitation
- * @var lispa\amos\invitations\models\InvitationUser $invitationUser
+ * @var open20\amos\invitations\models\Invitation $invitation
+ * @var open20\amos\invitations\models\InvitationUser $invitationUser
  * @var yii\widgets\ActiveForm $form
  */
 
@@ -59,7 +59,6 @@ $this->registerJs($js);
 
 
 <div class="invitation-form col-xs-12 nop">
-
     <?php $form = ActiveForm::begin([
         'options' => [
             'id' => 'my-form'
@@ -68,41 +67,39 @@ $this->registerJs($js);
 
     <?php $this->beginBlock('default'); ?>
 
-<div class="col-lg-6 col-sm-6">
+    <div class="col-lg-6 col-sm-6">
+        <?= $form->field($invitation, 'name')->textInput(['maxlength' => true]) ?>
+    </div>
 
-    <?= $form->field($invitation, 'name')->textInput(['maxlength' => true]) ?>
-</div>
+    <div class="col-lg-6 col-sm-6">
+        <?= $form->field($invitation, 'surname')->textInput(['maxlength' => true]) ?>
+    </div>
 
-<div class="col-lg-6 col-sm-6">
+    <div class="col-lg-12 col-sm-12">
+        <?= $form->field($invitationUser, 'email')->textInput(['id' => 'email']) ?>
+    </div>
 
-    <?= $form->field($invitation, 'surname')->textInput(['maxlength' => true]) ?>
-</div>
-<div class="col-lg-12 col-sm-12">
+    <div class="col-lg-12 col-sm-12 alert alert-warning" style="display: none;" id="check-email"></div>
 
-    <?= $form->field($invitationUser, 'email')->textInput(['id' => 'email']) ?>
-</div>
-
-<div class="col-lg-12 col-sm-12 alert alert-warning" style="display: none;" id="check-email"></div>
-
-<div class="col-lg-12 col-sm-12">
+    <div class="col-lg-12 col-sm-12">
     <?= $form->field($invitation, 'message')->widget(TextEditorWidget::className(), [
         'clientOptions' => [
             'placeholder' => Module::t('amosinvitations', '#message_field_placeholder'),
             'lang' => substr(Yii::$app->language, 0, 2)
         ]
     ]) ?>
-</div>
+    </div>
 
 <div class="clearfix"></div>
+
 <?php $this->endBlock(); ?>
 
-<?php $itemsTab[] = [
+<?php 
+$itemsTab[] = [
     'label' => Yii::t('amosinvitations', 'Default'),
     'content' => $this->blocks['default'],
 ];
-?>
 
-<?php
 try {
     echo Tabs::widget(
         [
@@ -111,6 +108,7 @@ try {
         ]
     );
 } catch (Exception $e) {
+    ;
 }
 ?>
 
@@ -147,7 +145,9 @@ try {
 
     ]);
 } catch (Exception $e) {
+    ;
 }
 ?>
+
 <?php ActiveForm::end(); ?>
 </div>

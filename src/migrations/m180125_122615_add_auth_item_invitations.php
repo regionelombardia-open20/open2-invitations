@@ -1,5 +1,14 @@
 <?php
-use lispa\amos\core\migration\AmosMigrationPermissions;
+
+/**
+ * Aria S.p.A.
+ * OPEN 2.0
+ *
+ *
+ * @package    Open20Package
+ * @category   CategoryName
+ */
+use open20\amos\core\migration\AmosMigrationPermissions;
 use yii\rbac\Permission;
 
 
@@ -17,14 +26,14 @@ class m180125_122615_add_auth_item_invitations extends AmosMigrationPermissions
 
         return [
             [
-                'name' =>  \lispa\amos\invitations\widgets\icons\WidgetIconInvitations::className(),
+                'name' =>  \open20\amos\invitations\widgets\icons\WidgetIconInvitations::className(),
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => $prefixStr . 'WidgetIconInvitations',
                 'ruleName' => null,
                 'parent' => ['INVITATIONS_BASIC_USER']
             ],
             [
-                'name' =>  \lispa\amos\invitations\widgets\icons\WidgetIconInvitationsAll::className(),
+                'name' =>  \open20\amos\invitations\widgets\icons\WidgetIconInvitationsAll::className(),
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => $prefixStr . 'WidgetIconInvitationsAll',
                 'ruleName' => null,

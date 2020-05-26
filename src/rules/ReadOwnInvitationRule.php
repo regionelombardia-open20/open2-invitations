@@ -1,17 +1,17 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\invitations
+ * @package    open20\amos\invitations
  * @category   CategoryName
  */
 
-namespace lispa\amos\invitations\rules;
+namespace open20\amos\invitations\rules;
 
-use lispa\amos\invitations\models\Invitation;
+use open20\amos\invitations\models\Invitation;
 use yii\rbac\Rule;
 
 class ReadOwnInvitationRule extends Rule
@@ -56,7 +56,7 @@ class ReadOwnInvitationRule extends Rule
     protected function instanceModel($model, $modelId)
     {
         $modelClass = $model->className();
-        /** @var \lispa\amos\invitations\models\Invitation $modelClass */
+        /** @var \open20\amos\invitations\models\Invitation $modelClass */
         $instancedModel = $modelClass::findOne($modelId);
         if (!is_null($instancedModel)) {
             $model = $instancedModel;

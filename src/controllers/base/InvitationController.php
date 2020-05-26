@@ -1,26 +1,26 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\invitations\controllers\base
+ * @package    open20\amos\invitations\controllers\base
  * @category   CategoryName
  */
 
-namespace lispa\amos\invitations\controllers\base;
+namespace open20\amos\invitations\controllers\base;
 
-use lispa\amos\admin\AmosAdmin;
-use lispa\amos\core\controllers\CrudController;
-use lispa\amos\core\helpers\Html;
-use lispa\amos\core\icons\AmosIcons;
-use lispa\amos\core\utilities\Email;
-use lispa\amos\invitations\models\Invitation;
-use lispa\amos\invitations\models\InvitationUser;
-use lispa\amos\invitations\models\search\InvitationSearch;
-use lispa\amos\invitations\Module;
-use lispa\amos\invitations\utility\InvitationsUtility;
+use open20\amos\admin\AmosAdmin;
+use open20\amos\core\controllers\CrudController;
+use open20\amos\core\helpers\Html;
+use open20\amos\core\icons\AmosIcons;
+use open20\amos\core\utilities\Email;
+use open20\amos\invitations\models\Invitation;
+use open20\amos\invitations\models\InvitationUser;
+use open20\amos\invitations\models\search\InvitationSearch;
+use open20\amos\invitations\Module;
+use open20\amos\invitations\utility\InvitationsUtility;
 use Yii;
 use yii\helpers\Url;
 use yii\validators\EmailValidator;
@@ -30,15 +30,22 @@ use yii\web\NotFoundHttpException;
 /**
  * Class InvitationController
  * InvitationController implements the CRUD actions for Invitation model.
- * @package lispa\amos\invitations\controllers\base
+ * @package open20\amos\invitations\controllers\base
  */
 class InvitationController extends CrudController
 {
+    public
+        $moduleName = null,
+        $contextModelId = null;
+
     /**
      * @throws \yii\base\InvalidConfigException
      */
     public function init()
     {
+        $this->moduleName = Yii::$app->request->get('moduleName');
+        $this->contextModelId = Yii::$app->request->get('contextModelId');
+
         $this->setModelObj(new Invitation());
         $this->setModelSearch(new InvitationSearch());
 
@@ -61,7 +68,7 @@ class InvitationController extends CrudController
      * @return mixed
      * @throws NotFoundHttpException
      */
-    public function actionIndex($layout = NULL)
+    public function actionIndex($layout = null)
     {
         Url::remember();
 
@@ -71,8 +78,10 @@ class InvitationController extends CrudController
 
         /* add params */
         $this->setCreateNewBtnLabel();
+        $this->setDataProvider(
+            $this->getModelSearch()->search(Yii::$app->request->getQueryParams())
+        );
 
-        $this->setDataProvider($this->getModelSearch()->search(Yii::$app->request->getQueryParams()));
         return parent::actionIndex();
     }
 
@@ -113,8 +122,19 @@ class InvitationController extends CrudController
             'num_users_already_present' => 0,
             'imp_mail_error' => '',
         ];
+
         $transaction = Yii::$app->db->beginTransaction();
         try {
+
+            $invitation = Yii::$app->request->post('InvitationSearch');
+            if (!is_null($invitation)) {
+                $moduleName = $invitation['moduleName'];
+                $contextModelId = $invitation['contextModelId'];
+            } else {
+                $moduleName = null;
+                $contextModelId = null;
+            }
+
             $submitImport = Yii::$app->request->post('submit-import');
             if (!empty($submitImport)) {
                 if ((isset($_FILES['import-file']['tmp_name']) && (!empty($_FILES['import-file']['tmp_name'])))) {
@@ -158,6 +178,12 @@ class InvitationController extends CrudController
                                 $invitation->name = $name;
                                 $invitation->surname = $surname;
                                 $invitation->message = $message;
+
+                                if ($moduleName && $contextModelId) {
+                                    $invitation->module_name = $this->moduleName;
+                                    $invitation->context_model_id = $this->contextModelId;
+                                }
+
                                 $invitation->save(false);
                                 $ret['num_imp']++;
                             }
@@ -180,12 +206,15 @@ class InvitationController extends CrudController
             } else {
                 $ret = null;
             }
+
             $transaction->commit();
         } catch (\Exception $e) {
             $ret['error'] = $e->getMessage();
             $transaction->rollBack();
+
             return $ret;
         }
+
         return $ret;
     }
 
@@ -200,10 +229,15 @@ class InvitationController extends CrudController
             $selection = Yii::$app->request->post('Invitation');
             if (!empty($selection) && isset($selection['selection'])) {
                 foreach ($selection['selection'] as $id) {
+                    /** @var  $invitation */
                     $invitation = Invitation::findOne($id);
                     if (!empty($invitation)) {
                         if (!InvitationsUtility::checkUserAlreadyPresent($invitation->invitationUser->email)) {
-                            $this->sendMailInvitation($invitation);
+                            if ($invitation->send) {
+                                $this->resend($invitation, false);
+                            } else {
+                                $this->sendMailInvitation($invitation);
+                            }
                             $i++;
                         }
                     }
@@ -212,6 +246,7 @@ class InvitationController extends CrudController
                 Yii::$app->getSession()->addFlash('warning', Module::t('amosinvitations', 'No invitation sent'));
             }
         }
+
         if ($i == 1) {
             Yii::$app->getSession()->addFlash('success', Module::t('amosinvitations', 'An invitation has been sent'));
         } elseif ($i > 1) {
@@ -226,6 +261,19 @@ class InvitationController extends CrudController
     protected function sendMailInvitation($invitation)
     {
         if (!empty($invitation)) {
+            $text = '';
+            $subjectText = '';
+            if ($this->moduleName && $this->contextModelId) {
+                $modulename = $this->moduleName;
+                $module = \Yii::$app->getModule($modulename);
+                if (method_exists($module, 'renderInvitationEmailText')) {
+                    $text = $module->renderInvitationEmailText($invitation);
+                }
+                if (method_exists($module, 'renderInvitationEmailSubject')) {
+                    $subjectText = $module->renderInvitationEmailSubject($invitation);
+                }
+            }
+
             if (isset(Yii::$app->params['email-assistenza'])) {
                 //use default platform email assistance
                 $from = Yii::$app->params['email-assistenza'];
@@ -234,12 +282,15 @@ class InvitationController extends CrudController
                 $from = isset($assistance['email']) ? $assistance['email'] : '';
             }
             $tos = [$invitation->invitationUser->email];
-            $subject = Module::t('amosinvitations', '#subject-invite');
-            $text = $this->renderPartial('_invitation_email', ['invitation' => $invitation]);
+            $subject = Module::t('amosinvitations', '#subject-invite', ['platformName' => Yii::$app->name]);
+            if (empty($text)) {
+                $text = $this->renderPartial('_invitation_email', ['invitation' => $invitation]);
+            }
             $invitation->send = (int)Email::sendMail($from, $tos, $subject, $text, [], [], [], 0, false);
             $invitation->send_time = date('Y-m-d H:i:s');
             $invitation->save(false);
         }
+
         return $invitation;
     }
 
@@ -248,9 +299,10 @@ class InvitationController extends CrudController
      * @param string|null $layout
      * @return mixed
      */
-    public function actionIndexAll($layout = NULL)
+    public function actionIndexAll($layout = null)
     {
         Url::remember();
+
         $this->setDataProvider($this->getModelSearch()->searchAll(Yii::$app->request->getQueryParams()));
 
         $ret = $this->importInvitationsAction();
@@ -264,14 +316,20 @@ class InvitationController extends CrudController
         if ($layout) {
             $this->setUpLayout($layout);
         }
-        return $this->render('index_all', [
-            'dataProvider' => $this->getDataProvider(),
-            'model' => $this->getModelSearch(),
-            'currentView' => $this->getCurrentView(),
-            'availableViews' => $this->getAvailableViews(),
-            'url' => ($this->url) ? $this->url : NULL,
-            'parametro' => ($this->parametro) ? $this->parametro : NULL
-        ]);
+
+        return $this->render(
+            'index_all',
+            [
+                'dataProvider' => $this->getDataProvider(),
+                'model' => $this->getModelSearch(),
+                'currentView' => $this->getCurrentView(),
+                'availableViews' => $this->getAvailableViews(),
+                'url' => ($this->url) ? $this->url : null,
+                'parametro' => ($this->parametro) ? $this->parametro : null,
+                'moduleName' => ($this->moduleName) ? $this->moduleName : null,
+                'contextModelId' => ($this->contextModelId) ? $this->contextModelId : null,
+            ]
+        );
     }
 
     /**
@@ -302,13 +360,23 @@ class InvitationController extends CrudController
         $invitation = new Invitation();
         $invitationUser = new InvitationUser();
 
+//        $moduleName = Yii::$app->request->get('moduleName');
+//        $contextModelId = Yii::$app->request->get('contextModelId');
+        if ($this->moduleName && $this->contextModelId) {
+            $invitation->module_name = $this->moduleName;
+            $invitation->context_model_id = $this->contextModelId;
+        }
+
         if (!Yii::$app->request->isAjax) {
             if ($invitation->load(Yii::$app->request->post()) && $invitationUser->load(Yii::$app->request->post())) {
                 if (InvitationsUtility::checkUserAlreadyPresent($invitationUser->email)) {
-                    return $this->render('create', [
-                        'invitation' => $invitation,
-                        'invitationUser' => $invitationUser,
-                    ]);
+                    return $this->render(
+                        'create',
+                        [
+                            'invitation' => $invitation,
+                            'invitationUser' => $invitationUser,
+                        ]
+                    );
                 }
             }
         }
@@ -326,37 +394,75 @@ class InvitationController extends CrudController
         $invitation = Invitation::findOne($id);
         $email = $invitation->invitationUser->email;
 
+        if ($this->moduleName && $this->contextModelId) {
+            $invitation->module_name = $this->moduleName;
+            $invitation->context_model_id = $this->contextModelId;
+        }
+
         if (InvitationsUtility::checkUserAlreadyPresent($email)) {
             if (Yii::$app->user->can('ADMIN')) {
-                return $this->redirect(['index-all']);
+                return $this->redirect([
+                    'index-all',
+                    'moduleName' => ($this->moduleName ? $this->moduleName : null),
+                    'contextModelId' => ($this->contextModelId ? $this->contextModelId : null)
+                ]);
             } else {
-                return $this->redirect(['index']);
+                return $this->redirect([
+                    'index',
+                    'moduleName' => ($this->moduleName ? $this->moduleName : null),
+                    'contextModelId' => ($this->contextModelId ? $this->contextModelId : null)
+                ]);
             }
         }
 
+        $invitationSent = $this->resend($invitation);
+        if (Yii::$app->user->can('INVITATIONS_ADMINISTRATOR')) {
+            return $this->redirect([
+                'index-all',
+                'moduleName' => ($this->moduleName ? $this->moduleName : null),
+                'contextModelId' => ($this->contextModelId ? $this->contextModelId : null)
+            ]);
+        } else {
+            return $this->redirect([
+                'index',
+                'moduleName' => ($this->moduleName ? $this->moduleName : null),
+                'contextModelId' => ($this->contextModelId ? $this->contextModelId : null)
+            ]);
+        }
+    }
+
+
+    /**
+     * @param Invitation $invitation
+     * @param bool $showAddflash
+     */
+    public function resend($invitation, $showAddflash = true)
+    {
         $newInvitation = new Invitation();
         $newInvitation->invitation_user_id = $invitation->invitation_user_id;
         $newInvitation->message = $invitation->message;
         $newInvitation->name = $invitation->name;
         $newInvitation->surname = $invitation->surname;
+        $newInvitation->module_name = $invitation->module_name;
+        $newInvitation->context_model_id = $invitation->context_model_id;
         $newInvitation->save();
-        $invitation = $this->sendMailInvitation($newInvitation);
-        if ($invitation->save()) {
-            Yii::$app->getSession()->addFlash('success', Module::t('amosinvitations', 'Item sended'));
+        $invitationSent = $this->sendMailInvitation($newInvitation);
+        if ($invitationSent->save()) {
+            if ($showAddflash) {
+                Yii::$app->getSession()->addFlash('success', Module::t('amosinvitations', 'Item sended'));
+            }
         } else {
             Yii::$app->getSession()->addFlash('danger', Module::t('amosinvitations', 'Item not sended, check data'));
         }
-
-        return $this->redirect(['index-all']);
     }
 
     /**
-     * @param $actionView
+     * @param string $actionView
      * @param Invitation $invitation
      * @param InvitationUser $invitationUser
      * @return string|\yii\web\Response
      */
-    protected function sendInvitation($actionView = null, $invitation, $invitationUser)
+    protected function sendInvitation($actionView, $invitation, $invitationUser)
     {
         $message = '';
         if ($invitationUser->load(Yii::$app->request->post())) {
@@ -369,10 +475,21 @@ class InvitationController extends CrudController
                         'invitationUser' => $invitationUser,
                     ]);
                 }
-                if (Yii::$app->user->can('ADMIN')) {
-                    return $this->redirect(['index-all']);
+                $sessionUrl = Yii::$app->session->get(Module::beginCreateNewSessionKey());
+                if (!is_null($sessionUrl)) {
+                    return $this->redirect($sessionUrl);
+                } elseif (Yii::$app->user->can('ADMIN')) {
+                    return $this->redirect([
+                        'index-all',
+                        'moduleName' => ($this->moduleName ? $this->moduleName : null),
+                        'contextModelId' => ($this->contextModelId ? $this->contextModelId : null)
+                    ]);
                 } else {
-                    return $this->redirect(['index']);
+                    return $this->redirect([
+                        'index',
+                        'moduleName' => ($this->moduleName ? $this->moduleName : null),
+                        'contextModelId' => ($this->contextModelId ? $this->contextModelId : null)
+                    ]);
                 }
             }
             // check if email is unique... if not i find this email in database, and i use this to create notification
@@ -399,10 +516,21 @@ class InvitationController extends CrudController
                 $message = Module::t('amosinvitations', 'Item sended');
                 if ($actionView) {
                     Yii::$app->getSession()->addFlash('success', $message);
-                    if (Yii::$app->user->can('ADMIN')) {
-                        return $this->redirect(['index-all']);
+                    $sessionUrl = Yii::$app->session->get(Module::beginCreateNewSessionKey());
+                    if (!is_null($sessionUrl)) {
+                        return $this->redirect($sessionUrl);
+                    } elseif (Yii::$app->user->can('ADMIN')) {
+                        return $this->redirect([
+                            'index-all',
+                            'moduleName' => ($this->moduleName ? $this->moduleName : null),
+                            'contextModelId' => ($this->contextModelId ? $this->contextModelId : null)
+                        ]);
                     } else {
-                        return $this->redirect(['index']);
+                        return $this->redirect([
+                            'index',
+                            'moduleName' => ($this->moduleName ? $this->moduleName : null),
+                            'contextModelId' => ($this->contextModelId ? $this->contextModelId : null)
+                        ]);
                     }
                 }
             } else {
@@ -434,7 +562,7 @@ class InvitationController extends CrudController
      */
     public function actionUpdate($id)
     {
-        $this->layout = "@vendor/lispa/amos-core/views/layouts/form";
+        $this->setUpLayout('form');
         $invitation = Invitation::findOne($id);
         if (empty($invitation)) {
             throw new BadRequestHttpException();
@@ -448,8 +576,34 @@ class InvitationController extends CrudController
                     'invitationUser' => $invitationUser,
                 ]);
             }
+            if (!$invitation->send) {
+                return $this->sendInvitation('update', $invitation, $invitationUser);
+            } else {
+                if ($invitation->load(Yii::$app->request->post())) {
+                    $this->resend($invitation);
+                    $sessionUrl = Yii::$app->session->get(Module::beginCreateNewSessionKey());
+                    if (!is_null($sessionUrl)) {
+                        return $this->redirect($sessionUrl);
+                    } elseif (Yii::$app->user->can('ADMIN')) {
+                        return $this->redirect([
+                            'index-all',
+                            'moduleName' => ($this->moduleName ? $this->moduleName : null),
+                            'contextModelId' => ($this->contextModelId ? $this->contextModelId : null)
+                        ]);
+                    } else {
+                        return $this->redirect([
+                            'index',
+                            'moduleName' => ($this->moduleName ? $this->moduleName : null),
+                            'contextModelId' => ($this->contextModelId ? $this->contextModelId : null)
+                        ]);
+                    }
+                }
+            }
         }
-        return $this->sendInvitation('update', $invitation, $invitationUser);
+        return $this->render('update', [
+            'invitation' => $invitation,
+            'invitationUser' => $invitationUser,
+        ]);
     }
 
     /**
@@ -478,12 +632,15 @@ class InvitationController extends CrudController
         } else {
             Yii::$app->getSession()->addFlash('danger', Module::t('amosinvitations', 'Item not found'));
         }
-        return $this->redirect(['index']);
+        return $this->redirect([
+            'index',
+            'moduleName' => ($this->moduleName ? $this->moduleName : null),
+            'contextModelId' => ($this->contextModelId ? $this->contextModelId : null)
+        ]);
     }
 
-
     /**
-     * Set a view param used in \lispa\amos\core\forms\CreateNewButtonWidget
+     * Set a view param used in \open20\amos\core\forms\CreateNewButtonWidget
      */
     private function setCreateNewBtnLabel()
     {
@@ -491,6 +648,8 @@ class InvitationController extends CrudController
             'class' => 'btn btn-primary',
             'data-toggle' => 'modal',
             'data-target' => '#modalImport',
+            'moduleName' => $this->moduleName,
+            'contextModelId' => $this->contextModelId
         ]);
 
         $session = Yii::$app->session;
@@ -502,11 +661,10 @@ class InvitationController extends CrudController
             }
         }
 
-        $createNewBtnParams = [];
-        $createNewBtnParams = yii\helpers\ArrayHelper::merge($createNewBtnParams, [
+        Yii::$app->view->params['createNewBtnParams'] = [
+            'urlCreateNew' => ['create', 'moduleName' => $this->moduleName, 'contextModelId' => $this->contextModelId],
+            'createNewBtnLabel' => AmosAdmin::t('amosinvitations', '#create_new_invite'),
             'layout' => "{buttonCreateNew}" . $importInvite . (isset($inviteFromGoogle) ? $inviteFromGoogle : '')
-        ]);
-
-        Yii::$app->view->params['createNewBtnParams'] = $createNewBtnParams;
+        ];
     }
 }

@@ -1,27 +1,27 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\invitations
+ * @package    open20\amos\invitations
  * @category   CategoryName
  */
 
-use lispa\amos\core\forms\ActiveForm;
-use lispa\amos\core\helpers\Html;
-use lispa\amos\core\views\AmosGridView;
-use lispa\amos\invitations\Module;
-use lispa\amos\invitations\assets\InvitationsAsset;
+use open20\amos\core\forms\ActiveForm;
+use open20\amos\core\helpers\Html;
+use open20\amos\core\views\AmosGridView;
+use open20\amos\invitations\Module;
+use open20\amos\invitations\assets\InvitationsAsset;
 use yii\widgets\Pjax;
 
 InvitationsAsset::register($this);
 /**
  * @var yii\web\View $this
- * @var \lispa\amos\invitations\models\GoogleInvitationForm $invitationForm
- * @var lispa\amos\invitations\models\Invitation $invitation
- * @var lispa\amos\invitations\models\InvitationUser $invitationUser
+ * @var \open20\amos\invitations\models\GoogleInvitationForm $invitationForm
+ * @var open20\amos\invitations\models\Invitation $invitation
+ * @var open20\amos\invitations\models\InvitationUser $invitationUser
  * @var yii\widgets\ActiveForm $form
  */
 
@@ -251,7 +251,7 @@ $this->registerJs($js);
     </div>
 
     <div class="col-xs-12 nop">
-        <?= $form->field($invitationForm, 'message')->widget(\lispa\amos\core\forms\TextEditorWidget::className(), [
+        <?= $form->field($invitationForm, 'message')->widget(\open20\amos\core\forms\TextEditorWidget::className(), [
             'clientOptions' => [
                 'placeholder' => Module::t('amosinvitations', '#message_placeholder'),
                 'lang' => substr(Yii::$app->language, 0, 2)

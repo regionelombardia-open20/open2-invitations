@@ -1,6 +1,15 @@
 <?php
-use lispa\amos\core\migration\AmosMigrationWidgets;
-use lispa\amos\dashboard\models\AmosWidgets;
+
+/**
+ * Aria S.p.A.
+ * OPEN 2.0
+ *
+ *
+ * @package    Open20Package
+ * @category   CategoryName
+ */
+use open20\amos\core\migration\AmosMigrationWidgets;
+use open20\amos\dashboard\models\AmosWidgets;
 
 
 /**
@@ -16,14 +25,14 @@ class m180125_122615_add_amos_widgets_invitations extends AmosMigrationWidgets
     {
         $this->widgets = [
             [
-                'classname' => \lispa\amos\invitations\widgets\icons\WidgetIconInvitations::className(),
+                'classname' => \open20\amos\invitations\widgets\icons\WidgetIconInvitations::className(),
                 'type' => AmosWidgets::TYPE_ICON,
                 'module' => self::MODULE_NAME,
                 'status' => AmosWidgets::STATUS_ENABLED,
                 'dashboard_visible' => 1,
             ],
             [
-                'classname' => \lispa\amos\invitations\widgets\icons\WidgetIconInvitationsAll::className(),
+                'classname' => \open20\amos\invitations\widgets\icons\WidgetIconInvitationsAll::className(),
                 'type' => AmosWidgets::TYPE_ICON,
                 'module' => self::MODULE_NAME,
                 'status' => AmosWidgets::STATUS_ENABLED,

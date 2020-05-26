@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\invitations
+ * @package    open20\amos\invitations
  * @category   CategoryName
  */
 
-use lispa\amos\core\helpers\Html;
+use open20\amos\core\helpers\Html;
     
 /*
  * Personalizzare a piacimento la vista

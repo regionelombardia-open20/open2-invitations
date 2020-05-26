@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\invitations
+ * @package    open20\amos\invitations
  * @category   CategoryName
  */
 
@@ -15,7 +15,7 @@ use yii\helpers\Url;
 
 /**
 * @var yii\web\View $this
-* @var lispa\amos\invitations\models\Invitation $model
+* @var open20\amos\invitations\models\Invitation $model
 */
 
 $this->title =  Yii::t('amosinvitations', 'Invitation addressed to {nameSurname}', ['nameSurname' => $model->getNameSurname()]);

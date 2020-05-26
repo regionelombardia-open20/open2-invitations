@@ -1,20 +1,20 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\invitations
+ * @package    open20\amos\invitations
  * @category   CategoryName
  */
 
-use lispa\amos\core\helpers\Html;
+use open20\amos\core\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /**
 * @var yii\web\View $this
-* @var \lispa\amos\invitations\models\search\InvitationSearch $model
+* @var \open20\amos\invitations\models\search\InvitationSearch $model
 * @var yii\widgets\ActiveForm $form
 */
 ?>

@@ -1,22 +1,22 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\showcaseprojects\views\showcase-project-proposal
+ * @package    open20\amos\showcaseprojects\views\showcase-project-proposal
  * @category   CategoryName
  */
 
-use lispa\amos\invitations\Module;
-use lispa\amos\core\forms\ActiveForm;
-use lispa\amos\core\helpers\Html;
+use open20\amos\invitations\Module;
+use open20\amos\core\forms\ActiveForm;
+use open20\amos\core\helpers\Html;
 use yii\bootstrap\Modal;
 
 /**
- * @var \lispa\amos\invitations\models\Invitation $invitation
- * @var \lispa\amos\invitations\models\InvitationUser $invitationUser
+ * @var \open20\amos\invitations\models\Invitation $invitation
+ * @var \open20\amos\invitations\models\InvitationUser $invitationUser
  */
 
 Modal::begin([

@@ -1,17 +1,18 @@
 <?php
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  * @licence GPLv3
- * @licence https://opensource.org/proscriptions/gpl-3.0.html GNU General Public Proscription version 3
+ * @licence https://opensource.org/licenses/gpl-3.0.html GNU General Public License version 3
  *
  * @package amos-invitations
  * @category CategoryName
+ * @author Lombardia Informatica S.p.A.
  */
 
 use \yii\bootstrap\Modal;
-use \lispa\amos\core\helpers\Html;
+use \open20\amos\core\helpers\Html;
 use \kartik\widgets\FileInput;
 use \yii\base\InvalidConfigException;
 
@@ -52,7 +53,12 @@ try {
             'showUpload' => false
         ]
     ]);
-
+    
+    if (!empty($model) && !empty($moduleName) && !empty($contextModelId)) {
+        echo $form->field($model, 'moduleName')->hiddenInput(['value' => $moduleName])->label(false);
+        echo $form->field($model, 'contextModelId')->hiddenInput(['value' => $contextModelId])->label(false);
+    }
+    
     Modal::end();
 
 } catch (InvalidConfigException $e) {

@@ -1,26 +1,26 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\invitations\utility
+ * @package    open20\amos\invitations\utility
  * @category   CategoryName
  */
 
-namespace lispa\amos\invitations\utility;
+namespace open20\amos\invitations\utility;
 
-use lispa\amos\core\user\User;
-use lispa\amos\invitations\Module;
-use yii\base\Object;
+use open20\amos\core\user\User;
+use open20\amos\invitations\Module;
+use yii\base\BaseObject;
 use yii\web\Application;
 
 /**
  * Class InvitationsUtility
- * @package lispa\amos\invitations\utility
+ * @package open20\amos\invitations\utility
  */
-class InvitationsUtility extends Object
+class InvitationsUtility extends BaseObject
 {
     /**
      * Checks if a user is already present in the platform and set
