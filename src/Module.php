@@ -38,6 +38,22 @@ class Module extends AmosModule implements ModuleInterface
     public $name = 'invitations';
 
     /**
+     *
+     * @var string $subjectPlaceholder
+     * Valore del placeholder per la label che corrisponde all'oggetto della mail invito (in traduzione)
+     * Il default è #subject-invite
+     */
+    public $subjectPlaceholder = '#subject-invite';
+
+    /**
+     *
+     * @var string $subjectCategory
+     * Valore della categoria per la label che corrisponde all'oggetto della mail invito (in traduzione)
+     * Il default è amosinvitations
+     */
+    public $subjectCategory = 'amosinvitations';
+
+    /**
      * @inheritdoc
      */
     public static function getModuleName()

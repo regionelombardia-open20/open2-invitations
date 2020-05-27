@@ -59,7 +59,15 @@ class InvitationSearch extends Invitation
                 ->andFilterWhere(['like', 'email', $this->email]);
         }
 
-        
+        if ((isset($params['moduleName'])) && (isset($params['contextModelId']))) {
+//            if ($params['moduleName'] == 'community') {
+            $query
+                ->andWhere(['=', 'context_model_id', $params['contextModelId']]);
+//            }
+        }
+
+
+
         $query->andFilterWhere([
             'id' => $this->id,
             'send_time' => $this->send_time,
@@ -87,10 +95,10 @@ class InvitationSearch extends Invitation
         $query->innerJoinWith('invitationUser');
 
         if ((isset($params['moduleName'])) && (isset($params['contextModelId']))) {
-            if ($params['moduleName'] == 'community') {
+//            if ($params['moduleName'] == 'community') {
                 $query
                     ->andWhere(['=', 'context_model_id', $params['contextModelId']]);
-            }
+//            }
         }
         
         $dataProvider = new ActiveDataProvider([

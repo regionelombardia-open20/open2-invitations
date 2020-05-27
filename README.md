@@ -64,3 +64,11 @@ example in a form:
 <?php ActiveForm::end(); ?>
 <?= InviteUserWidget::widget(['layout' => '{invitationModalForm}' ]) ?>
 ```
+
+### Module configuration params
+
+* **subjectPlaceholder** - string, default = '#subject-invite' 
+String used for placeholder which translates mail subject.
+
+* **subjectCategory** - string, default = 'amosinvitations' 
+String used for linking a translation category to the mail subject.
