@@ -69,6 +69,7 @@ class InvitationsUtility extends BaseObject
      */
     public static function getRegisterLink($registerAction = '')
     {
+
         if (!$registerAction) {
             $registerAction = 'register';
         }

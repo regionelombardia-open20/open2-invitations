@@ -103,8 +103,20 @@ $this->registerJs($js);
                     'invitationUser.email',
                     'send_time:datetime',
                     [
-                        'label' => Module::t('amosinvitations', 'Inviato da'),
-                        'attribute' => 'createdUserProfile.nomeCognome',
+                        'attribute' => 'invite_accepted',
+                        'format' => 'boolean',
+                        'label' => Module::t('amosinvitations', 'Invite accepted')
+                    ],
+                    [
+                        'value' => function ($model) {
+                            $retArray = \open20\amos\invitations\utility\InvitationsUtility::checkUserAlreadyPresent($model->invitationUser->email, true, true);
+                            if (!empty($retArray['present'])) {
+                                return true;
+                            }
+                            return false;
+                        },
+                        'format' => 'boolean',
+                        'label' => Module::t('amosinvitations', 'Email already present in platform')
                     ],
                     [
                         'class' => 'open20\amos\core\views\grid\ActionColumn',
@@ -170,6 +182,18 @@ $this->registerJs($js);
                                     return $btn;
                                 }
                                 return '';
+                            },
+                            'delete' => function ($url, $model) {
+                                $btn = '';
+                                $can = \Yii::$app->user->can('INVITATION_DELETE', ['model'=>$model]);
+                                if ($can && empty($model->send_time)) {
+                                    $btn = Html::a(AmosIcons::show('delete'), ['/invitations/invitation/delete', 'id' => $model->id], [
+                                        'class' => 'btn btn-danger-inverse',
+                                        'title' =>  Module::t('amosinvitations', 'Delete'),
+                                        'data-confirm' =>  Module::t('amosinvitations', "Sei sicuro di eliminare l'invito?"),
+                                    ]);
+                                }
+                                return $btn;
                             }
                         ]
                     ],
@@ -192,6 +216,15 @@ $this->registerJs($js);
         'type' => 'submit',
         'name' => 'submit-invitation',
         'data-confirm' => Module::t('amosinvitations', '#are-you-sure-send-all')
+    ]);
+    ?>
+
+    <?= Html::button(Module::t('amosinvitations', 'Delete all selected'), [
+        'class' => 'btn btn-primary pull-right m-r-10',
+        'value' => 'delete-invitation',
+        'type' => 'submit',
+        'name' => 'delete-invitation',
+        'data-confirm' => Module::t('amosinvitations', '#are-you-sure-delete-all')
     ]);
     ?>
     

@@ -50,7 +50,8 @@ $registerAction = $model->register_action;
         'id' => $model->id,
         'moduleName' => $moduleName,
         'contextModelId' => $contextModelId,
-        'registerAction' => $contextModelId
+        'registerAction' => $registerAction,
+        'iid' => $invitation->id
     ], ['class' => 'btn btn-primary pull-right']) ?>
     <?php CloseSaveButtonWidget::widget(['model' => $model, 'buttonId' => 're-send-button', 'buttonSaveLabel' => Module::t('amosinvitations', 'Send')]); ?>
 </div>

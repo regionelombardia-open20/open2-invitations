@@ -97,4 +97,7 @@ return [
     'Cancel' => 'Cancel',
     'Reset' => 'Cancel',
     '{sentInvitations} invitations sent successfully' => '{sentInvitations} invitations sent successfully',
+    "#are-you-sure-delete-all" => "Are you sure to delete all seleced invitations?",
+    "Sei sicuro di eliminare l'invito?" => "Sei sicuro di eliminare l'invito?",
+
 ];

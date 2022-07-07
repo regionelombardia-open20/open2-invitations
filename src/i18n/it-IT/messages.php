@@ -97,5 +97,12 @@ return [
     'Cancel' => 'Annulla',
     'Reset' => 'Annulla',
     '{sentInvitations} invitations sent successfully' => 'Sono stati correttamente spediti {sentInvitations} inviti',
-    'Update and re-send invitation...' => "Modifica ed invia dinuovo l'invito"
+    'Update and re-send invitation...' => "Modifica ed invia dinuovo l'invito",
+    'An invitation has been deleted' => "Un invito è stato eliminato",
+    '{num} invitations were deleted' => "Sono stati eliminati {num} inviti",
+    'No invitation deleted' => "Nessun invito è stato eliminato",
+    "Delete all selected" => "Elimina tutti i selezionati",
+    "#are-you-sure-delete-all" => "Sei sicuro di eliminare tutti gli inviti selezionati?",
+    'Invite accepted' => 'Invito accettato',
+    'Email already present in platform' => 'Email presente in piattaforma'
 ];

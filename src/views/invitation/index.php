@@ -40,7 +40,7 @@ $this->registerJs($js);
 
 <div class="invitation-index">
     <?= $this->render('_search', ['model' => $model,]); ?>
-    
+
     <?php
     $form = ActiveForm::begin([
         'options' => [
@@ -48,10 +48,10 @@ $this->registerJs($js);
         ]
     ]);
     ?>
-    
+
     <?= $this->render('_modal', ['form' => $form, 'model' => $model, 'moduleName' => $moduleName,
         'contextModelId' => $contextModelId]) ?>
-    
+
     <?= DataProviderView::widget([
         'dataProvider' => $dataProvider,
         'currentView' => $currentView,
@@ -76,6 +76,23 @@ $this->registerJs($js);
                 'name',
                 'surname',
                 'invitationUser.email',
+                [
+                    'attribute' => 'invite_accepted',
+                    'format' => 'boolean',
+                    'label' => Module::t('amosinvitations', 'Invite accepted')
+                ],
+                [
+                    'value' => function ($model) {
+                        $retArray = \open20\amos\invitations\utility\InvitationsUtility::checkUserAlreadyPresent($model->invitationUser->email, true, true);
+                        if (!empty($retArray['present'])) {
+                            return true;
+                        }
+                        return false;
+                    },
+                    'format' => 'boolean',
+                    'label' => Module::t('amosinvitations', 'Email already present in platform')
+                ],
+
                 'send_time:datetime',
                 [
                     'class' => 'open20\amos\core\views\grid\ActionColumn',
@@ -85,7 +102,7 @@ $this->registerJs($js);
                             /** @var \open20\amos\invitations\models\Invitation $model */
                             if (\Yii::$app->user->id == $model->created_by) {
                                 $retArray = \open20\amos\invitations\utility\InvitationsUtility::checkUserAlreadyPresent($model->invitationUser->email, true, true);
-                                
+
                                 if (!$model->send) {
                                     $label = Module::t('amosinvitations', 'Update and send invitation...');
                                 } else {
@@ -96,14 +113,14 @@ $this->registerJs($js);
                                     'class' => 'btn btn-tools-secondary',
                                     'title' => $label,
                                 ];
-                                
+
                                 //
                                 if ($retArray['present']) {
                                     $options['disabled'] = true;
                                     $options['title'] = $retArray['message'];
                                     $options['class'] = 'btn btn-tools-secondary';
                                 }
-                                
+
                                 $btn = Html::a(
                                     AmosIcons::show('email'),
                                     !$retArray['present'] ?
@@ -145,14 +162,26 @@ $this->registerJs($js);
                                 return $btn;
                             }
                             return '';
+                        },
+                        'delete' => function ($url, $model) {
+                            $btn = '';
+                            $can = \Yii::$app->user->can('INVITATION_DELETE', ['model' => $model]);
+                            if ($can && empty($model->send_time)) {
+                                $btn = Html::a(AmosIcons::show('delete'), ['/invitations/invitation/delete', 'id' => $model->id], [
+                                    'class' => 'btn btn-danger-inverse',
+                                    'title' =>  Module::t('amosinvitations', 'Delete'),
+                                    'data-confirm' =>  Module::t('amosinvitations', "Sei sicuro di eliminare l'invito?"),
+                                ]);
+                            }
+                            return $btn;
                         }
                     ]
                 ],
             ],
         ],
     ]); ?>
-    
-    
+
+
     <?= Html::button(Module::t('amosinvitations', 'Send all selected'), [
         'class' => 'btn btn-primary pull-right',
         'value' => 'send-invitation',
@@ -161,7 +190,16 @@ $this->registerJs($js);
         'data-confirm' => Module::t('amosinvitations', '#are-you-sure-send-all')
     ]);
     ?>
-    
+    <?= Html::button(Module::t('amosinvitations', 'Delete all selected'), [
+        'class' => 'btn btn-primary pull-right m-r-10',
+        'value' => 'delete-invitation',
+        'type' => 'submit',
+        'name' => 'delete-invitation',
+        'data-confirm' => Module::t('amosinvitations', '#are-you-sure-delete-all')
+    ]);
+    ?>
+
+
     <?php ActiveForm::end(); ?>
 
 </div>

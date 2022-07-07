@@ -14,6 +14,9 @@ use open20\amos\core\user\User;
 use open20\amos\invitations\Module;
 use open20\amos\invitations\utility\InvitationsUtility;
 
+$moduleUserAuth = \Yii::$app->getModule('userauthfrontend');
+$moduleAdmin = \Yii::$app->getModule(\open20\amos\admin\AmosAdmin::getModuleName());
+
 /**
  * @var yii\web\View $this
  * @var open20\amos\invitations\models\Invitation $invitation
@@ -32,7 +35,8 @@ $urlConf = [
     'name' => $invitation->name,
     'surname' => $invitation->surname,
     'email' => $invitation->invitationUser->email,
-    'iuid' => \Yii::$app->user->id
+    'iuid' => \Yii::$app->user->id,
+    'iid' => $invitation->id
 ];
 
 if (!empty($invitation->module_name) && !empty($invitation->context_model_id)) {
@@ -41,6 +45,16 @@ if (!empty($invitation->module_name) && !empty($invitation->context_model_id)) {
 }
 
 $url = Yii::$app->urlManager->createAbsoluteUrl($urlConf);
+
+$skipTextHowto = false;
+if ($moduleUserAuth && $moduleUserAuth->enableDlSemplificationLight) {
+    $skipTextHowto = true;
+    if (!empty(\Yii::$app->params['linkConfigurations']['loginLinkCommon'])) {
+        $redirect = $url;
+        $url = Yii::$app->urlManager->createAbsoluteUrl([\Yii::$app->params['linkConfigurations']['loginLinkCommon'], 'redirectToRegisterUrl' => $redirect]);
+    }
+
+}
 
 ?>
 <div>
@@ -52,9 +66,14 @@ $url = Yii::$app->urlManager->createAbsoluteUrl($urlConf);
             'sender' => $profileSender->nomeCognome
         ]) ?></p>
     <div style="color:green"><strong><?= $invitation->message ?></strong></div>
-    <p style="text-align: center"><a href="<?= $url ?>"><strong><?= Module::t('amosinvitations', '#registration_page') ?></strong></a></p>
-    <p><?= Module::t('amosinvitations', "#text_email_invitation1", ['platformName' => $appName]) ?></p><br>
-    <p style="color:green"><strong><?= Module::t('amosinvitations', '#text_email_invitation2', ['platformName' => $appName]) ?></strong></p><br>
+    <p style="text-align: center"><a
+                href="<?= $url ?>"><strong><?= Module::t('amosinvitations', '#registration_page') ?></strong></a></p>
+    <?php if (!$skipTextHowto) { ?>
+        <p><?= Module::t('amosinvitations', "#text_email_invitation1", ['platformName' => $appName]) ?></p><br>
+    <?php } ?>
+    <p style="color:green">
+        <strong><?= Module::t('amosinvitations', '#text_email_invitation2', ['platformName' => $appName]) ?></strong>
+    </p><br>
     <p><?= Module::t('amosinvitations', "#text_email_invitation3", ['platformName' => $appName]) ?></p>
 </div>
 

@@ -41,7 +41,7 @@ class InvitationController extends CrudController
     public $contextModelId = null;
     public $returnTo = null;
     public $registerAction = null;
-    
+
     /**
      * @var Module|null $invitationsModule
      */
@@ -72,12 +72,13 @@ class InvitationController extends CrudController
         
         parent::init();
     }
-    
+
     /**
-     * Lists all Invitation models.
-     * @param string|null $layout
-     * @return mixed
-     * @throws NotFoundHttpException
+     *  Lists all Invitation models.
+     * @param null $layout
+     * @return string
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function actionIndex($layout = null)
     {
@@ -86,7 +87,8 @@ class InvitationController extends CrudController
         $ret = $this->importInvitationsAction();
         $this->handleImportResult($ret);
         $this->sendSelectedInvitationsAction();
-        
+        $this->deleteSelectedInvitationsAction();
+
         /* add params */
         $this->setCreateNewBtnLabel();
         $this->setDataProvider(
@@ -273,6 +275,38 @@ class InvitationController extends CrudController
             Yii::$app->getSession()->addFlash('success', Module::t('amosinvitations', '{num} invitations were sent', ['num' => $i]));
         }
     }
+
+    /**
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
+     */
+    private function deleteSelectedInvitationsAction()
+    {
+        $i = 0;
+        $submitInvitation = Yii::$app->request->post('delete-invitation');
+        if (!empty($submitInvitation)) {
+            $selection = Yii::$app->request->post('Invitation');
+            if (!empty($selection) && isset($selection['selection'])) {
+                foreach ($selection['selection'] as $id) {
+                    /** @var Invitation $invitationModel */
+                    $invitationModel = $this->invitationsModule->createModel('Invitation');
+                    /** @var Invitation $invitation */
+                    $invitation = $invitationModel::findOne($id);
+                    if (!empty($invitation) && empty($invitation->send_time)) {
+                        $invitation->delete();
+                        $i++;
+                    }
+                }
+            } else {
+                Yii::$app->getSession()->addFlash('warning', Module::t('amosinvitations', 'No invitation deleted'));
+            }
+        }
+        if ($i == 1) {
+            Yii::$app->getSession()->addFlash('success', Module::t('amosinvitations', 'An invitation has been deleted'));
+        } elseif ($i > 1) {
+            Yii::$app->getSession()->addFlash('success', Module::t('amosinvitations', '{num} invitations were deleted', ['num' => $i]));
+        }
+    }
     
     /**
      * @param Invitation $invitation
@@ -310,22 +344,27 @@ class InvitationController extends CrudController
             } else {
                 $subject = Module::t('amosinvitations', '#subject-invite', ['platformName' => Yii::$app->name]);
             }
-            
+
+            $invitation->save(false);
+
             if (empty($text)) {
                 $text = $this->renderPartial('_invitation_email', ['invitation' => $invitation]);
+                $invitation->send = (int)Email::sendMail($from, $tos, $subject, $text, [], [], [], 0, false);
+                $invitation->send_time = date('Y-m-d H:i:s');
+                $invitation->save(false);
+
             }
-            $invitation->send = (int)Email::sendMail($from, $tos, $subject, $text, [], [], [], 0, false);
-            $invitation->send_time = date('Y-m-d H:i:s');
-            $invitation->save(false);
         }
         
         return $invitation;
     }
-    
+
     /**
      * Lists all Invitation models.
-     * @param string|null $layout
-     * @return mixed
+     * @param null $layout
+     * @return string
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function actionIndexAll($layout = null)
     {
@@ -336,7 +375,9 @@ class InvitationController extends CrudController
         $ret = $this->importInvitationsAction();
         $this->handleImportResult($ret);
         $this->sendSelectedInvitationsAction();
-        
+        $this->deleteSelectedInvitationsAction();
+
+
         /* add params */
         $this->setCreateNewBtnLabel();
         
@@ -710,12 +751,11 @@ class InvitationController extends CrudController
             //il record sarà cancelleto comunque anche in presenza di tabelle collegate a questo record
             //e non saranno cancellate le dipendenze e non avremo nemmeno evidenza della loro presenza
             //In caso di soft delete attiva è consigliato modificare la funzione oppure utilizzare il forceDelete() che non andrà
-            //mai a buon fine in caso di dipendenze presenti sul record da cancellare
-            if ($model->delete()) {
-                Yii::$app->getSession()->addFlash('success', Module::t('amosinvitations', 'Item deleted'));
-            } else {
-//                Yii::$app->getSession()->addFlash('danger', Module::t('amosinvitations', 'Item not deleted because of dependency'));
-            }
+            //mai a buon fine in cas di dipendenze presenti sul record da cancellare
+            $model->delete();
+            Yii::$app->getSession()->addFlash('success', Module::t('amosinvitations', 'Item deleted'));
+
+
         } else {
             Yii::$app->getSession()->addFlash('danger', Module::t('amosinvitations', 'Item not found'));
         }
