@@ -22,6 +22,9 @@ use yii\web\Application;
  */
 class InvitationsUtility extends BaseObject
 {
+    const RETURN_TO_ORGANIZATION = 'org_';
+    const RETURN_TO_USER_PROFILE = 'prof_';
+    
     /**
      * Checks if a user is already present in the platform and set
      * @param string $email User email

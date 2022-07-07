@@ -1,14 +1,12 @@
 <?php
+
 /**
  * Aria S.p.A.
  * OPEN 2.0
  *
- * @licence GPLv3
- * @licence https://opensource.org/licenses/gpl-3.0.html GNU General Public License version 3
  *
- * @package amos-invitations
- * @category CategoryName
- * @author Lombardia Informatica S.p.A.
+ * @package    open20\amos\invitations\views\invitation
+ * @category   CategoryName
  */
 
 use \yii\bootstrap\Modal;

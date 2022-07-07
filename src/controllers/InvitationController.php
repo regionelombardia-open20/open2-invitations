@@ -5,7 +5,7 @@
  * OPEN 2.0
  *
  *
- * @package    open20\amos\invitations
+ * @package    open20\amos\invitations\controllers
  * @category   CategoryName
  */
 
@@ -27,7 +27,9 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\BaseFileHelper;
 
 /**
+ * Class InvitationController
  * This is the class for controller "InvitationController".
+ * @package open20\amos\invitations\controllers
  */
 class InvitationController extends base\InvitationController
 {
@@ -64,7 +66,7 @@ class InvitationController extends base\InvitationController
                             'roles' => ['INVITATIONS_ADMINISTRATOR']
                         ],
                     ],
-
+                
                 ],
                 'verbs' => [
                     'class' => VerbFilter::className(),
@@ -74,49 +76,68 @@ class InvitationController extends base\InvitationController
                     ]
                 ]
             ]);
-
+        
         return $result;
     }
-
+    
     /**
      * @param string $email
-     * @return string
+     * @return false|string
+     * @throws \yii\base\InvalidConfigException
      */
     public function actionCheckEmailAjax($email = '')
     {
         $responseArray = ['success' => 1];
         $response = InvitationsUtility::checkUserAlreadyPresent($email, true, true);
-        if(!empty($response['present']) && $response['present']){
-            $responseArray = ArrayHelper::merge(['success' => 0, 'messageConfirm' => ''], $response) ;
+        if (!empty($response['present']) && $response['present']) {
+            $responseArray = ArrayHelper::merge([
+                'success' => 0,
+                'messageConfirm' => Module::t('amosinvitations', '#check_mail_ajax_user_already_present'),
+            ], $response);
             return json_encode($responseArray);
         }
-        if (!Invitation::alreadySended($email)) {
+        /** @var Invitation $invitationModel */
+        $invitationModel = $this->invitationsModule->createModel('Invitation');
+        if (!$invitationModel::alreadySended($email)) {
             $responseArray = ArrayHelper::merge($responseArray, [
                 'message' => '',
-                'messageConfirm' => \Yii::t('amosinvitations', 'Are you sure to send this invitation?'),
+                'messageConfirm' => Module::t('amosinvitations', 'Are you sure to send this invitation?'),
             ]);
             return json_encode($responseArray);
         } else {
-            $invitationUser = InvitationUser::getInvitationUserFromEmail($email);
+            /** @var InvitationUser $invitationUserModel */
+            $invitationUserModel = $this->invitationsModule->createModel('InvitationUser');
+            /** @var InvitationUser $invitationUser */
+            $invitationUser = $invitationUserModel::getInvitationUserFromEmail($email);
             if (!empty($invitationUser)) {
                 $num = $invitationUser->numberNotificationSended;
-                $messageConfirm = \Yii::t('amosinvitations', "To this email have already been sent {numInviti} invitations, send the invitation again?", ['numInviti' => $num]);
-                $message = \Yii::t('amosinvitations', "To this email have already been sent {numInviti} invitations", ['numInviti' => $num]);
-                $responseArray = ArrayHelper::merge($responseArray, [
-                    'message' => $message,
-                    'messageConfirm' => $messageConfirm,
-                ]);
+                if ($this->invitationsModule->allowOneInvitePerMail && ($num > 0)) {
+                    $messageConfirm = Module::t('amosinvitations', '#send_invitation_one_invite_allowed_message_confirm');
+                    $message = Module::t('amosinvitations', '#send_invitation_one_invite_allowed_message');
+                    $responseArray = ArrayHelper::merge($responseArray, [
+                        'message' => $message,
+                        'messageConfirm' => $messageConfirm,
+                        'oneInvitePerMail' => 1,
+                    ]);
+                } else {
+                    $messageConfirm = Module::t('amosinvitations', "To this email have already been sent {numInviti} invitations, send the invitation again?", ['numInviti' => $num]);
+                    $message = Module::t('amosinvitations', "To this email have already been sent {numInviti} invitations", ['numInviti' => $num]);
+                    $responseArray = ArrayHelper::merge($responseArray, [
+                        'message' => $message,
+                        'messageConfirm' => $messageConfirm,
+                    ]);
+                }
                 return json_encode($responseArray);
             } else {
                 $responseArray = ArrayHelper::merge($responseArray, [
                     'message' => '',
-                    'messageConfirm' => \Yii::t('amosinvitations', 'Are you sure to send this invitation?'),
+                    'messageConfirm' => Module::t('amosinvitations', 'Are you sure to send this invitation?'),
                 ]);
                 return json_encode($responseArray);
             }
         }
     }
-
+    
     /**
      * Used by invitation widget to send invitation from modal
      * @return bool|string
@@ -124,8 +145,13 @@ class InvitationController extends base\InvitationController
     public function actionInviteUser()
     {
         $view = '@vendor/open20/amos-invitations/src/widgets/views/invite-user';
-        $invitation = new Invitation();
-        $invitationUser = new InvitationUser();
+        
+        /** @var Invitation $invitation */
+        $invitation = $this->invitationsModule->createModel('Invitation');
+        
+        /** @var InvitationUser $invitationUser */
+        $invitationUser = $this->invitationsModule->createModel('InvitationUser');
+        
         $this->layout = false;
         if (Yii::$app->getRequest()->isAjax) {
             if (Yii::$app->request->isPost) {
@@ -137,8 +163,8 @@ class InvitationController extends base\InvitationController
         }
         return $this->renderAjax($view, ['invitation' => $invitation, 'invitationUser' => $invitationUser]);
     }
-
-
+    
+    
     /**
      * @return \yii\console\Response|\yii\web\Response
      * @throws \PHPExcel_Exception
@@ -149,19 +175,19 @@ class InvitationController extends base\InvitationController
     {
         $fileName = 'inviti.xlsx';
         $storePath = \Yii::getAlias('@webroot') . DIRECTORY_SEPARATOR . 'invitations' . DIRECTORY_SEPARATOR . 'docs';
-
+        
         if (!is_dir($storePath)) {
             BaseFileHelper::createDirectory($storePath, 0775, true);
         }
-
+        
         $path = $storePath . DIRECTORY_SEPARATOR . $fileName;
         if (!file_exists($path)) {
             $this->createImportTemplate($path);
         }
-
+        
         return \Yii::$app->response->sendFile($path);
     }
-
+    
     /**
      * @throws \PHPExcel_Exception
      * @throws \PHPExcel_Writer_Exception
@@ -177,21 +203,25 @@ class InvitationController extends base\InvitationController
         $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
         $objWriter->save($path);
     }
-
+    
     /**
      * @param int $id
      * @return string
      */
     public function actionInvitationsSent($id)
     {
-        $model = Invitation::findOne($id);
+        /** @var Invitation $invitationModel */
+        $invitationModel = $this->invitationsModule->createModel('Invitation');
+        
+        /** @var Invitation $model */
+        $model = $invitationModel::findOne($id);
         if ($this->moduleName && $this->contextModelId) {
             $model->module_name = $this->moduleName;
             $model->context_model_id = $this->contextModelId;
         }
         return $this->renderAjax('_invitations_sent', ['model' => $model]);
     }
-
+    
     /**
      * Send invitations to the platform to the selected google contacts
      *
@@ -201,20 +231,20 @@ class InvitationController extends base\InvitationController
     public function actionInviteGoogle($search = null)
     {
         $this->setUpLayout('form');
-
+        
         $sentInvitations = 0;
         $send = false;
         $selection = [];
         $invitationForm = new GoogleInvitationForm();
         $post = Yii::$app->request->post();
         $searchText = $search;
-        if(array_key_exists('search',$post)){
+        if (array_key_exists('search', $post)) {
             $searchText = $post['search'];
         }
-        if($invitationForm->load($post)){
+        if ($invitationForm->load($post)) {
             $selection = explode(',', $invitationForm->selection);
             $searchText = $invitationForm->search;
-            if($invitationForm->validate() ) {
+            if ($invitationForm->validate()) {
                 $send = true;
             }
         }
@@ -224,50 +254,54 @@ class InvitationController extends base\InvitationController
         $allModels = [];
         $allModelsSelected = [];
         $contactsNotPlatform = array_unique($contactsNotPlatform);
-        foreach ($contactsNotPlatform as $contactKey){
-            if(array_key_exists($contactKey, $contacts)){
+        foreach ($contactsNotPlatform as $contactKey) {
+            if (array_key_exists($contactKey, $contacts)) {
                 $contactToInvite = new UserToInvite();
                 $invitationUser = null;
                 $contact = $contacts[$contactKey];
-                if(!empty($contact['names'])){
+                if (!empty($contact['names'])) {
                     $names = $contact['names'];
-                    if(!empty($names['name'])){
+                    if (!empty($names['name'])) {
                         $contactToInvite->name = $names['name'][0];
                     }
-                    if(!empty($names['surname'])){
+                    if (!empty($names['surname'])) {
                         $contactToInvite->surname = $names['surname'][0];
                     }
-                    if(!empty($names['displayName'])){
+                    if (!empty($names['displayName'])) {
                         $contactToInvite->displayName = $names['displayName'][0];
                     }
                 }
-                if(!empty($contact['email'])){
+                if (!empty($contact['email'])) {
                     $contactToInvite->email = $contact['email'];
                 }
-                if(!empty($contact['photos'])){
+                if (!empty($contact['photos'])) {
                     $photos = $contact['photos'];
-                    if(!empty($photos['url'])){
+                    if (!empty($photos['url'])) {
                         $contactToInvite->photoUrl = $photos['url'][0];
                     }
                 }
-                if($contactToInvite->email && $contactToInvite->name && $contactToInvite->surname) {
-                    $invitationUser = InvitationUser::getInvitationUserFromEmail($contactToInvite->email);
-                    if(!is_null($invitationUser)) {
+                if ($contactToInvite->email && $contactToInvite->name && $contactToInvite->surname) {
+                    /** @var InvitationUser $invitationUserModel */
+                    $invitationUserModel = $this->invitationsModule->createModel('InvitationUser');
+                    $invitationUser = $invitationUserModel::getInvitationUserFromEmail($contactToInvite->email);
+                    if (!is_null($invitationUser)) {
                         $contactToInvite->invitationUserId = $invitationUser->id;
                         $contactToInvite->sentInvitations = $invitationUser->getNumberNotificationSendedByMe();
                     }
                     if (in_array($contactToInvite->email, $selection) && !array_key_exists($contactToInvite->email, $allModels)) {
                         /** @var InvitationUser $invitationUser */
-
+                        
                         $contactToInvite->selected = true;
                         $allModelsSelected[$contactToInvite->email] = $contactToInvite;
-                        if($send) {
+                        if ($send) {
                             if (is_null($invitationUser)) {
-                                $invitationUser = new InvitationUser();
+                                /** @var InvitationUser $invitationUser */
+                                $invitationUser = $this->invitationsModule->createModel('InvitationUser');
                                 $invitationUser->email = $contactToInvite->email;
                                 $invitationUser->save();
                             }
-                            $invitation = new Invitation();
+                            /** @var Invitation $invitation */
+                            $invitation = $this->invitationsModule->createModel('Invitation');
                             $invitation->message = $invitationForm->message;
                             $invitation->invitation_user_id = $invitationUser->id;
                             $invitation->name = $contactToInvite->name;
@@ -280,18 +314,18 @@ class InvitationController extends base\InvitationController
                             }
                         }
                     }
-                    if(empty($searchText)){
+                    if (empty($searchText)) {
                         $allModels[$contactToInvite->email] = $contactToInvite;
-                    }else{
-                        if(strstr($contactToInvite->displayName, $searchText) || strstr($contactToInvite->email, $searchText) ){
+                    } else {
+                        if (strstr($contactToInvite->displayName, $searchText) || strstr($contactToInvite->email, $searchText)) {
                             $allModels[$contactToInvite->email] = $contactToInvite;
                         }
                     }
-
+                    
                 }
             }
         }
-        if($sentInvitations){
+        if ($sentInvitations) {
             Yii::$app->session->addFlash('success', Module::t('amosinvitations', '{sentInvitations} invitations sent successfully', ['sentInvitations' => $sentInvitations]));
             if (Yii::$app->user->can('ADMIN')) {
                 return $this->redirect(['index-all']);

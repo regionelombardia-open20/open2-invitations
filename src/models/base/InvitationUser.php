@@ -5,7 +5,7 @@
  * OPEN 2.0
  *
  *
- * @package    open20\amos\invitations
+ * @package    open20\amos\invitations\models\base
  * @category   CategoryName
  */
 
@@ -15,6 +15,8 @@ use open20\amos\core\record\Record;
 use open20\amos\invitations\Module;
 
 /**
+ * Class InvitationUser
+ *
  * This is the base-model class for table "invitation_user".
  *
  * @property integer $id
@@ -27,16 +29,31 @@ use open20\amos\invitations\Module;
  * @property integer $deleted_by
  *
  * @property \open20\amos\invitations\models\Invitation[] $invitations
+ *
+ * @package open20\amos\invitations\models\base
  */
 class InvitationUser extends Record
 {
-
+    /**
+     * @var Module $invitationsModule
+     */
+    protected $invitationsModule;
+    
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
         return 'invitation_user';
+    }
+    
+    /**
+     * @inheritdoc
+     */
+    public function init()
+    {
+        $this->invitationsModule = Module::instance();
+        parent::init();
     }
 
     /**

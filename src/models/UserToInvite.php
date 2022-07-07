@@ -5,12 +5,11 @@
  * OPEN 2.0
  *
  *
- * @package    UserToInvite.php
+ * @package    open20\amos\invitations\models
  * @category   CategoryName
  */
 
 namespace open20\amos\invitations\models;
-
 
 use open20\amos\invitations\Module;
 use yii\base\Model;

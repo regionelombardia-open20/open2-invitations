@@ -5,7 +5,7 @@
  * OPEN 2.0
  *
  *
- * @package    open20\amos\invitations
+ * @package    open20\amos\invitations\views\invitation
  * @category   CategoryName
  */
 
@@ -41,7 +41,7 @@ $this->registerJs($js);
 <div class="invitation-index">
     <h4><?= Module::t('amosinvitations', '#introduction_invitation', ['platformName' => Yii::$app->name]) ?></h4>
     <?= $this->render('_search', ['model' => $model,]); ?>
-
+    
     <?php
     $form = ActiveForm::begin([
         'options' => [
@@ -49,10 +49,10 @@ $this->registerJs($js);
         ]
     ]);
     ?>
-
+    
     <?= $this->render('_modal', ['form' => $form, 'model' => $model, 'moduleName' => $moduleName,
         'contextModelId' => $contextModelId]) ?>
-
+    
     <?= DataProviderView::widget([
         'dataProvider' => $dataProvider,
         'currentView' => $currentView,
@@ -82,11 +82,11 @@ $this->registerJs($js);
                     'class' => 'open20\amos\core\views\grid\ActionColumn',
                     'template' => '{view}{update}{re-send}{delete}',
                     'buttons' => [
-                        'update' => function ($url, $model)  use ($moduleName, $contextModelId) {
+                        'update' => function ($url, $model) use ($moduleName, $contextModelId) {
                             /** @var \open20\amos\invitations\models\Invitation $model */
                             if (\Yii::$app->user->id == $model->created_by) {
                                 $retArray = \open20\amos\invitations\utility\InvitationsUtility::checkUserAlreadyPresent($model->invitationUser->email, true, true);
-
+                                
                                 if (!$model->send) {
                                     $label = Module::t('amosinvitations', 'Update and send invitation...');
                                 } else {
@@ -97,14 +97,14 @@ $this->registerJs($js);
                                     'class' => 'btn btn-tools-secondary',
                                     'title' => $label,
                                 ];
-
+                                
                                 //
                                 if ($retArray['present']) {
                                     $options['disabled'] = true;
                                     $options['title'] = $retArray['message'];
                                     $options['class'] = 'btn btn-tools-secondary';
                                 }
-
+                                
                                 $btn = Html::a(
                                     AmosIcons::show('email'),
                                     !$retArray['present'] ?
@@ -152,8 +152,8 @@ $this->registerJs($js);
             ],
         ],
     ]); ?>
-
-
+    
+    
     <?= Html::button(Module::t('amosinvitations', 'Send all selected'), [
         'class' => 'btn btn-primary pull-right',
         'value' => 'send-invitation',
@@ -162,7 +162,7 @@ $this->registerJs($js);
         'data-confirm' => Module::t('amosinvitations', '#are-you-sure-send-all')
     ]);
     ?>
-
+    
     <?php ActiveForm::end(); ?>
 
 </div>

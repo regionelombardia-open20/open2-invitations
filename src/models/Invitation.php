@@ -5,27 +5,30 @@
  * OPEN 2.0
  *
  *
- * @package    open20\amos\invitations
+ * @package    open20\amos\invitations\models
  * @category   CategoryName
  */
 
 namespace open20\amos\invitations\models;
 
+use open20\amos\invitations\Module;
 use yii\db\ActiveQuery;
-use yii\helpers\ArrayHelper;
 
 /**
+ * Class Invitation
+ * This is the model class for table "invitation".
+ *
  * @property boolean alreadySended
  * @property string nameSurname
- * This is the model class for table "invitation".
+ *
+ * @package open20\amos\invitations\models
  */
 class Invitation extends \open20\amos\invitations\models\base\Invitation
 {
-
     public static function getEditFields()
     {
         $labels = self::attributeLabels();
-
+        
         return [
             [
                 'slug' => 'name',
@@ -59,64 +62,54 @@ class Invitation extends \open20\amos\invitations\models\base\Invitation
             ],
         ];
     }
-
-    public function attributeLabels()
-    {
-        return
-            ArrayHelper::merge(
-                parent::attributeLabels(),
-                [
-                ]);
-    }
-
+    
     public function representingColumn()
     {
         return $this->getNameSurname();
     }
-
+    
     /**
      * Returns the text hint for the specified attribute.
      * @param string $attribute the attribute name
      * @return string the attribute hint
-     * @see attributeHints
      */
     public function getAttributeHint($attribute)
     {
         $hints = $this->attributeHints();
         return isset($hints[$attribute]) ? $hints[$attribute] : null;
     }
-
+    
     public function attributeHints()
     {
         return [
         ];
     }
-
-    public function rules()
+    
+    public function getNameSurname()
     {
-        return ArrayHelper::merge(parent::rules(), [
-        ]);
-    }
-
-    public function getNameSurname(){
         return $this->name . ' ' . $this->surname;
     }
-
-    public function getAlreadySended(){
+    
+    public function getAlreadySended()
+    {
         if (!empty($this->invitationUser)) {
             return self::alreadySended($this->invitationUser->email);
         } else {
             return false;
         }
     }
-
+    
     /**
      * @param $email
      * @return bool
      */
-    public static function alreadySended($email){
+    public static function alreadySended($email)
+    {
+        /** @var InvitationUser $invitationUserModel */
+        $invitationUserModel = Module::instance()->createModel('InvitationUser');
+        
         /** @var ActiveQuery $query */
-        $query = InvitationUser::find();
+        $query = $invitationUserModel::find();
         $invitationUser = $query->joinWith('invitations')->andWhere(['invitation_user.email' => $email, 'invitation.send' => 1])->one();
         if (empty($invitationUser)) {
             return false;
@@ -124,5 +117,4 @@ class Invitation extends \open20\amos\invitations\models\base\Invitation
             return true;
         }
     }
-
 }

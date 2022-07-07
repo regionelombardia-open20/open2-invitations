@@ -5,7 +5,7 @@
  * OPEN 2.0
  *
  *
- * @package    open20\amos\invitations
+ * @package    open20\amos\invitations\views\invitation
  * @category   CategoryName
  */
 

@@ -52,6 +52,21 @@ class Module extends AmosModule implements ModuleInterface
      * Il default è amosinvitations
      */
     public $subjectCategory = 'amosinvitations';
+    
+    /**
+     * @var bool $enableInviteMessage If is true the invite message is enabled. Default to true.
+     */
+    public $enableInviteMessage = true;
+    
+    /**
+     * @var bool $enableFiscalCode If is true the fiscal code is enabled. Default to false.
+     */
+    public $enableFiscalCode = false;
+    
+    /**
+     * @var bool $enableFiscalCode When this param is true the controller in create invite allow to create only one invite for each email.
+     */
+    public $allowOneInvitePerMail = false;
 
     /**
      * @inheritdoc
@@ -100,8 +115,11 @@ class Module extends AmosModule implements ModuleInterface
     protected function getDefaultModels()
     {
         return [
+            'GoogleInvitationForm' => __NAMESPACE__ . '\\' . 'models\GoogleInvitationForm',
             'Invitation' => __NAMESPACE__ . '\\' . 'models\Invitation',
             'InvitationUser' => __NAMESPACE__ . '\\' . 'models\InvitationUser',
+            'UserToInvite' => __NAMESPACE__ . '\\' . 'models\UserToInvite',
+            'InvitationSearch' => __NAMESPACE__ . '\\' . 'models\search\InvitationSearch',
         ];
     }
 }

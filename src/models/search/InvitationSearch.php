@@ -5,25 +5,30 @@
  * OPEN 2.0
  *
  *
- * @package    open20\amos\invitations
+ * @package    open20\amos\invitations\models\search
  * @category   CategoryName
  */
 
 namespace open20\amos\invitations\models\search;
 
+use open20\amos\invitations\models\Invitation;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use open20\amos\invitations\models\Invitation;
 use yii\db\ActiveQuery;
 
 /**
+ * Class InvitationSearch
  * InvitationSearch represents the model behind the search form about `open20\amos\invitations\models\Invitation`.
+ * @package open20\amos\invitations\models\search
  */
 class InvitationSearch extends Invitation
 {
     public $email;
-
+    
+    /**
+     * @inheritdoc
+     */
     public function rules()
     {
         return [
@@ -31,24 +36,30 @@ class InvitationSearch extends Invitation
             [['name', 'surname', 'message', 'send_time', 'email', 'created_at', 'updated_at', 'deleted_at'], 'safe'],
         ];
     }
-
+    
+    /**
+     * @inheritdoc
+     */
     public function scenarios()
     {
         // bypass scenarios() implementation in the parent class
         return Model::scenarios();
     }
-
+    
     public function search($params)
     {
+        /** @var Invitation $invitationModel */
+        $invitationModel = $this->invitationsModule->createModel('Invitation');
+        
         /** @var ActiveQuery $query */
-        $query = Invitation::find()
+        $query = $invitationModel::find()
             ->andWhere([Invitation::tableName() . '.created_by' => Yii::$app->user->id])
             ->orderBy('send ASC, send_time DESC');
-
+        
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
-
+        
         $scope = $this->getScope($params);
         if (!($this->load($params, $scope) && $this->validate())) {
             return $dataProvider;
@@ -58,16 +69,15 @@ class InvitationSearch extends Invitation
             $query->innerJoinWith('invitationUser')
                 ->andFilterWhere(['like', 'email', $this->email]);
         }
-
+        
         if ((isset($params['moduleName'])) && (isset($params['contextModelId']))) {
 //            if ($params['moduleName'] == 'community') {
             $query
                 ->andWhere(['=', 'context_model_id', $params['contextModelId']]);
 //            }
         }
-
-
-
+        
+        
         $query->andFilterWhere([
             'id' => $this->id,
             'send_time' => $this->send_time,
@@ -80,24 +90,27 @@ class InvitationSearch extends Invitation
             'invitation.updated_by' => $this->updated_by,
             'invitation.deleted_by' => $this->deleted_by,
         ]);
-
+        
         $query->andFilterWhere(['like', 'name', $this->name])
             ->andFilterWhere(['like', 'surname', $this->surname])
             ->andFilterWhere(['like', 'message', $this->message]);
-
+        
         return $dataProvider;
     }
-
+    
     public function searchAll($params)
     {
+        /** @var Invitation $invitationModel */
+        $invitationModel = $this->invitationsModule->createModel('Invitation');
+        
         /** @var ActiveQuery $query */
-        $query = Invitation::find();
+        $query = $invitationModel::find();
         $query->innerJoinWith('invitationUser');
-
+        
         if ((isset($params['moduleName'])) && (isset($params['contextModelId']))) {
 //            if ($params['moduleName'] == 'community') {
-                $query
-                    ->andWhere(['=', 'context_model_id', $params['contextModelId']]);
+            $query
+                ->andWhere(['=', 'context_model_id', $params['contextModelId']]);
 //            }
         }
         
@@ -112,7 +125,7 @@ class InvitationSearch extends Invitation
                     'invitationUser.email' => [
                         'asc' => ['invitation_user.email' => SORT_ASC],
                         'desc' => ['invitation_user.email' => SORT_DESC]
-                        ],
+                    ],
                     'name',
                     'surname',
                     'send_time',
@@ -120,13 +133,13 @@ class InvitationSearch extends Invitation
                 ]
             ],
         ]);
-
+        
         $scope = $this->getScope($params);
-
+        
         if (!($this->load($params, $scope) && $this->validate())) {
             return $dataProvider;
         }
-
+        
         $query->andFilterWhere([
             'id' => $this->id,
             'send_time' => $this->send_time,
@@ -139,14 +152,14 @@ class InvitationSearch extends Invitation
             'invitation.updated_by' => $this->updated_by,
             'invitation.deleted_by' => $this->deleted_by,
         ])->andFilterWhere(['like', 'email', $this->email]);
-
+        
         $query->andFilterWhere(['like', 'name', $this->name])
             ->andFilterWhere(['like', 'surname', $this->surname])
             ->andFilterWhere(['like', 'message', $this->message]);
-
+        
         return $dataProvider;
     }
-
+    
     public function getScope($params)
     {
         $scope = $this->formName();

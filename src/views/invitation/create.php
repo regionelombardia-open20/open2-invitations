@@ -5,12 +5,13 @@
  * OPEN 2.0
  *
  *
- * @package    open20\amos\invitations
+ * @package    open20\amos\invitations\views\invitation
  * @category   CategoryName
  */
 
 use open20\amos\invitations\models\Invitation;
 use open20\amos\invitations\models\InvitationUser;
+use open20\amos\invitations\Module;
 use yii\web\View;
 
 /**
@@ -19,14 +20,12 @@ use yii\web\View;
  * @var InvitationUser $invitationUser
  */
 
-$this->title = Yii::t('amosinvitations', '#send-invitation-titile');
+$this->title = Module::t('amosinvitations', '#send-invitation-title');
+
 ?>
 <div class="invitation-create">
-<?= $this->render(
-    '_form', 
-    [
+    <?= $this->render('_form', [
         'invitation' => $invitation,
         'invitationUser' => $invitationUser,
-    ]) 
-?>
+    ]) ?>
 </div>
