@@ -12,6 +12,7 @@
 use open20\amos\admin\models\UserProfile;
 use open20\amos\core\user\User;
 use open20\amos\invitations\Module;
+use open20\amos\invitations\utility\InvitationsUtility;
 
 /**
  * @var yii\web\View $this
@@ -23,11 +24,11 @@ $loggedUser = \Yii::$app->user->identity;
 
 /** @var UserProfile $profileSender */
 $profileSender = $loggedUser->userProfile;
-
 $appName = Yii::$app->name;
 
+$registerAction = ($invitation->register_action ? $invitation->register_action : '');
 $urlConf = [
-    '/admin/security/register',
+    InvitationsUtility::getRegisterLink($registerAction),
     'name' => $invitation->name,
     'surname' => $invitation->surname,
     'email' => $invitation->invitationUser->email,

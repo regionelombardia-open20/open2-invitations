@@ -95,5 +95,6 @@ return [
     'Search name or email' => 'Search name or email',
     'Search' => 'Search',
     'Cancel' => 'Cancel',
+    'Reset' => 'Cancel',
     '{sentInvitations} invitations sent successfully' => '{sentInvitations} invitations sent successfully',
 ];

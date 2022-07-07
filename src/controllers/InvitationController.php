@@ -25,6 +25,7 @@ use yii\filters\AccessRule;
 use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
 use yii\helpers\BaseFileHelper;
+use open20\amos\core\helpers\Html;
 
 /**
  * Class InvitationController
@@ -38,7 +39,8 @@ class InvitationController extends base\InvitationController
      */
     public function behaviors()
     {
-        $result = ArrayHelper::merge(parent::behaviors(),
+        $result = ArrayHelper::merge(
+            parent::behaviors(),
             [
                 'access' => [
                     'class' => AccessControl::className(),
@@ -66,7 +68,7 @@ class InvitationController extends base\InvitationController
                             'roles' => ['INVITATIONS_ADMINISTRATOR']
                         ],
                     ],
-                
+
                 ],
                 'verbs' => [
                     'class' => VerbFilter::className(),
@@ -75,11 +77,76 @@ class InvitationController extends base\InvitationController
                         'delete' => ['post', 'get']
                     ]
                 ]
-            ]);
-        
+            ]
+        );
+
         return $result;
     }
-    
+
+    public function beforeAction($action)
+    {
+        if (\Yii::$app->user->isGuest) {
+            $titleSection = Module::t('amosinvitations', 'Gestione inviti');
+            $urlLinkAll   = '';
+
+            $subTitleSection  = Html::tag('p', Module::t('amosinvitations', ''));
+            $ctaLoginRegister = Html::a(
+                Module::t('amosinvitations', 'registrati alla piattaforma'),
+                isset(\Yii::$app->params['linkConfigurations']['loginLinkCommon']) ? \Yii::$app->params['linkConfigurations']['loginLinkCommon']
+                    : \Yii::$app->params['platform']['backendUrl'] . '/' . AmosAdmin::getModuleName() . '/security/login',
+                [
+                    'title' => Module::t(
+                        'amosinvitation',
+                        'Clicca per accedere o registrarti alla piattaforma {platformName}',
+                        ['platformName' => \Yii::$app->name]
+                    )
+                ]
+            );
+        } else {
+            $titleSection = Module::t('amosinvitations', 'Gestione inviti');
+            $labelLinkAll = Module::t('amosinvitations', '');
+            $urlLinkAll   = Module::t('amosinvitations', '');
+            $titleLinkAll = Module::t('amosinvitations', '');
+
+            $subTitleSection = Html::tag('p', Module::t('amosinvitations', '#introduction_invitation', ['platformName' => \Yii::$app->name]));
+        }
+
+        $labelCreate = Module::t('amosinvitations', 'Nuovo');
+        $titleCreate = Module::t('amosinvitations', 'Crea un nuovo invito');
+        $labelManage = Module::t('amosinvitations', 'Gestisci');
+        $titleManage = Module::t('amosinvitations', 'Gestisci gli inviti');
+        $urlCreate   = \Yii::$app->urlManager->createUrl([
+            '/' . Module::getModuleName() . '/invitation/create',
+            'moduleName' => $this->moduleName,
+            'contextModelId' => $this->contextModelId,
+            'registerAction' => $this->registerAction
+        ]);
+
+
+        $this->view->params = [
+            'isGuest' => \Yii::$app->user->isGuest,
+            'modelLabel' => 'invitations',
+            'titleSection' => $titleSection,
+            'subTitleSection' => $subTitleSection,
+            'urlLinkAll' => $urlLinkAll,
+            'labelLinkAll' => $labelLinkAll,
+            'titleLinkAll' => $titleLinkAll,
+            'labelCreate' => $labelCreate,
+            'titleCreate' => $titleCreate,
+            'labelManage' => $labelManage,
+            'titleManage' => $titleManage,
+            'urlCreate' => $urlCreate,
+        ];
+
+        if (!parent::beforeAction($action)) {
+            return false;
+        }
+
+        // other custom code here
+
+        return true;
+    }
+
     /**
      * @param string $email
      * @return false|string
@@ -137,7 +204,7 @@ class InvitationController extends base\InvitationController
             }
         }
     }
-    
+
     /**
      * Used by invitation widget to send invitation from modal
      * @return bool|string
@@ -145,13 +212,13 @@ class InvitationController extends base\InvitationController
     public function actionInviteUser()
     {
         $view = '@vendor/open20/amos-invitations/src/widgets/views/invite-user';
-        
+
         /** @var Invitation $invitation */
         $invitation = $this->invitationsModule->createModel('Invitation');
-        
+
         /** @var InvitationUser $invitationUser */
         $invitationUser = $this->invitationsModule->createModel('InvitationUser');
-        
+
         $this->layout = false;
         if (Yii::$app->getRequest()->isAjax) {
             if (Yii::$app->request->isPost) {
@@ -163,8 +230,8 @@ class InvitationController extends base\InvitationController
         }
         return $this->renderAjax($view, ['invitation' => $invitation, 'invitationUser' => $invitationUser]);
     }
-    
-    
+
+
     /**
      * @return \yii\console\Response|\yii\web\Response
      * @throws \PHPExcel_Exception
@@ -175,19 +242,19 @@ class InvitationController extends base\InvitationController
     {
         $fileName = 'inviti.xlsx';
         $storePath = \Yii::getAlias('@webroot') . DIRECTORY_SEPARATOR . 'invitations' . DIRECTORY_SEPARATOR . 'docs';
-        
+
         if (!is_dir($storePath)) {
             BaseFileHelper::createDirectory($storePath, 0775, true);
         }
-        
+
         $path = $storePath . DIRECTORY_SEPARATOR . $fileName;
         if (!file_exists($path)) {
             $this->createImportTemplate($path);
         }
-        
+
         return \Yii::$app->response->sendFile($path);
     }
-    
+
     /**
      * @throws \PHPExcel_Exception
      * @throws \PHPExcel_Writer_Exception
@@ -203,7 +270,7 @@ class InvitationController extends base\InvitationController
         $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
         $objWriter->save($path);
     }
-    
+
     /**
      * @param int $id
      * @return string
@@ -212,16 +279,19 @@ class InvitationController extends base\InvitationController
     {
         /** @var Invitation $invitationModel */
         $invitationModel = $this->invitationsModule->createModel('Invitation');
-        
+
         /** @var Invitation $model */
         $model = $invitationModel::findOne($id);
         if ($this->moduleName && $this->contextModelId) {
             $model->module_name = $this->moduleName;
             $model->context_model_id = $this->contextModelId;
+            if ($this->registerAction) {
+                $model->register_action = $this->registerAction;
+            }
         }
         return $this->renderAjax('_invitations_sent', ['model' => $model]);
     }
-    
+
     /**
      * Send invitations to the platform to the selected google contacts
      *
@@ -231,7 +301,7 @@ class InvitationController extends base\InvitationController
     public function actionInviteGoogle($search = null)
     {
         $this->setUpLayout('form');
-        
+
         $sentInvitations = 0;
         $send = false;
         $selection = [];
@@ -290,7 +360,7 @@ class InvitationController extends base\InvitationController
                     }
                     if (in_array($contactToInvite->email, $selection) && !array_key_exists($contactToInvite->email, $allModels)) {
                         /** @var InvitationUser $invitationUser */
-                        
+
                         $contactToInvite->selected = true;
                         $allModelsSelected[$contactToInvite->email] = $contactToInvite;
                         if ($send) {
@@ -321,7 +391,6 @@ class InvitationController extends base\InvitationController
                             $allModels[$contactToInvite->email] = $contactToInvite;
                         }
                     }
-                    
                 }
             }
         }

@@ -72,8 +72,7 @@ class InvitationSearch extends Invitation
         
         if ((isset($params['moduleName'])) && (isset($params['contextModelId']))) {
 //            if ($params['moduleName'] == 'community') {
-            $query
-                ->andWhere(['=', 'context_model_id', $params['contextModelId']]);
+            $query->andWhere(['LIKE', 'context_model_id', $params['contextModelId']]);
 //            }
         }
         
@@ -110,7 +109,7 @@ class InvitationSearch extends Invitation
         if ((isset($params['moduleName'])) && (isset($params['contextModelId']))) {
 //            if ($params['moduleName'] == 'community') {
             $query
-                ->andWhere(['=', 'context_model_id', $params['contextModelId']]);
+                ->andWhere(['LIKE', 'context_model_id', $params['contextModelId']]);
 //            }
         }
         

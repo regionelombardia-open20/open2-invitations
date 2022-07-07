@@ -11,6 +11,7 @@
 
 use open20\amos\core\helpers\Html;
 use yii\widgets\ActiveForm;
+use \open20\amos\invitations\Module;
 
 /**
 * @var yii\web\View $this
@@ -68,8 +69,9 @@ use yii\widgets\ActiveForm;
 
     <div class="col-xs-12">
         <div class="pull-right">
-            <?= Html::resetButton(Yii::t('amosinvitations', 'Reset'), ['class' => 'btn btn-secondary']) ?>
-            <?= Html::submitButton(Yii::t('amosinvitations', 'Search'), ['class' => 'btn btn-navigation-primary']) ?>
+            <?= Html::a(Module::t('amosinvitations', 'Annulla'), [Yii::$app->controller->action->id, 'currentView' => Yii::$app->request->getQueryParam('currentView')],
+                ['class' => 'btn btn-secondary']) ?>
+            <?= Html::submitButton(Module::t('amosinvitations', 'Search'), ['class' => 'btn btn-navigation-primary']) ?>
         </div>
     </div>
 

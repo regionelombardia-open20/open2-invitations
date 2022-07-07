@@ -21,13 +21,11 @@ use open20\amos\invitations\Module;
  */
 
 /** @var Module $invitationsModule */
-$invitationsModule = Module::instance();
-
-$moduleName = null;
-$contextModelId = null;
+$invitationsModule = \Yii::$app->getModule('invitations');
 
 $moduleName = $model->module_name;
 $contextModelId = $model->context_model_id;
+$registerAction = $model->register_action;
 ?>
 
 <?php $form = ActiveForm::begin() ?>
@@ -51,7 +49,8 @@ $contextModelId = $model->context_model_id;
         '/invitations/invitation/re-send',
         'id' => $model->id,
         'moduleName' => $moduleName,
-        'contextModelId' => $contextModelId
+        'contextModelId' => $contextModelId,
+        'registerAction' => $contextModelId
     ], ['class' => 'btn btn-primary pull-right']) ?>
     <?php CloseSaveButtonWidget::widget(['model' => $model, 'buttonId' => 're-send-button', 'buttonSaveLabel' => Module::t('amosinvitations', 'Send')]); ?>
 </div>

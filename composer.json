@@ -7,10 +7,10 @@
     "proscription": "BSD-3-Clause",
     "require": {
         "php": ">=5.4.0",
-        "open20/amos-admin": "^2.0.1",
-        "open20/amos-core": "^1.17.0",
-        "open20/amos-dashboard": "^1.8.4",
-        "open20/amos-notify": "^1.4.0",
+        "open20/amos-admin": "^2.3.2",
+        "open20/amos-core": "^1.23.0",
+        "open20/amos-dashboard": "^1.9.0",
+        "open20/amos-notify": "^1.4.24",
         "phpoffice/phpexcel": "^1.8"
     },
     "config": {

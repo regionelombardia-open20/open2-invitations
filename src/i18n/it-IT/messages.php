@@ -95,6 +95,7 @@ return [
     'Search name or email' => 'Cerca nome o email',
     'Search' => 'Cerca',
     'Cancel' => 'Annulla',
+    'Reset' => 'Annulla',
     '{sentInvitations} invitations sent successfully' => 'Sono stati correttamente spediti {sentInvitations} inviti',
     'Update and re-send invitation...' => "Modifica ed invia dinuovo l'invito"
 ];

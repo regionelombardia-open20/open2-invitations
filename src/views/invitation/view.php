@@ -24,6 +24,7 @@ use yii\widgets\DetailView;
 $invitationsModule = Module::instance();
 
 $this->title = Module::t('amosinvitations', '#invite_view_title', ['nameSurname' => $model->getNameSurname()]);
+$this->params['breadcrumbs'][] = $this->title;
 
 $attributes = [
     'name',

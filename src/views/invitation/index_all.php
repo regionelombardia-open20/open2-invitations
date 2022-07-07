@@ -22,6 +22,9 @@ use yii\bootstrap\Modal;
  * @var yii\web\View $this
  * @var yii\data\ActiveDataProvider $dataProvider
  * @var \open20\amos\invitations\models\search\InvitationSearch $model
+ * @var string $moduleName
+ * @var string $contextModelId
+ * @var string $registerAction
  */
 
 $this->title = Module::t('amosinvitations', 'All invitations');
@@ -41,8 +44,7 @@ $this->registerJs($js);
 ?>
 
 <div class="invitation-index">
-    <h4><?= Module::t('amosinvitations', '#introduction_invitation', ['platformName' => Yii::$app->name]) ?></h4>
-    <br>
+
     <?php
     echo $this->render('_search', [
         'model' => $model,
@@ -134,7 +136,13 @@ $this->registerJs($js);
                                     
                                     $btn = Html::a(
                                         AmosIcons::show('email'),
-                                        !$retArray['present'] ? ['update', 'id' => $model->id] : 'javascript:void(0)',
+                                        !$retArray['present'] ? [
+                                                'update',
+                                            'id' => $model->id,
+                                            'moduleName' => \Yii::$app->request->get('moduleName'),
+                                            'contextModelId' => \Yii::$app->request->get('contextModelId'),
+                                            'registerAction' => \Yii::$app->request->get('registerAction'),
+                                        ] : 'javascript:void(0)',
                                         $options
                                     );
                                     return $btn;

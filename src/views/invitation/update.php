@@ -21,6 +21,8 @@ use yii\web\View;
  */
 
 $this->title = Module::t('amosinvitations', '#send-invitation-title');
+$this->params['breadcrumbs'][] = $this->title;
+
 ?>
 <div class="invitation-update">
     <?= $this->render('_form', [

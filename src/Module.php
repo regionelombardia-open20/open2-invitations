@@ -16,12 +16,14 @@ use open20\amos\core\module\ModuleInterface;
 use open20\amos\invitations\widgets\icons\WidgetIconInvitations;
 use open20\amos\invitations\widgets\icons\WidgetIconInvitationsAll;
 use yii\helpers\ArrayHelper;
+use open20\amos\core\interfaces\BreadcrumbInterface;
+
 
 /**
  * Class Module
  * @package open20\amos\invitations
  */
-class Module extends AmosModule implements ModuleInterface
+class Module extends AmosModule implements ModuleInterface, BreadcrumbInterface
 {
     public static $CONFIG_FOLDER = 'config';
 
@@ -64,7 +66,7 @@ class Module extends AmosModule implements ModuleInterface
     public $enableFiscalCode = false;
     
     /**
-     * @var bool $enableFiscalCode When this param is true the controller in create invite allow to create only one invite for each email.
+     * @var bool $allowOneInvitePerMail When this param is true the controller in create invite allow to create only one invite for each email.
      */
     public $allowOneInvitePerMail = false;
 
@@ -121,5 +123,27 @@ class Module extends AmosModule implements ModuleInterface
             'UserToInvite' => __NAMESPACE__ . '\\' . 'models\UserToInvite',
             'InvitationSearch' => __NAMESPACE__ . '\\' . 'models\search\InvitationSearch',
         ];
+    }
+
+
+    /**
+     * @return array
+     */
+    public function getIndexActions(){
+        return [
+            'invitation/index',
+            'invitation/index-all',
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getControllerNames(){
+        $names =  [
+            'invitation' => self::t('amosinvitations', 'Invitations'),
+        ];
+
+        return $names;
     }
 }

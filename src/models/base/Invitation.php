@@ -26,8 +26,9 @@ use open20\amos\invitations\Module;
  * @property string $message
  * @property string $send_time
  * @property integer $send
+ * @property string $register_action
  * @property string $module_name
- * @property integer $context_model_id
+ * @property string $context_model_id
  * @property integer $invitation_user_id
  * @property string $created_at
  * @property string $updated_at
@@ -80,10 +81,10 @@ class Invitation extends Record
         return [
             [['message'], 'string'],
             [['send_time', 'created_at', 'updated_at', 'deleted_at'], 'safe'],
-            [['send', 'context_model_id', 'invitation_user_id', 'created_by', 'updated_by', 'deleted_by'], 'integer'],
+            [['send', 'invitation_user_id', 'created_by', 'updated_by', 'deleted_by'], 'integer'],
             [$requiredArray, 'required'],
             [['fiscal_code'], 'string', 'max' => 16],
-            [['name', 'surname', 'module_name'], 'string', 'max' => 255],
+            [['name', 'surname', 'register_action', 'module_name', 'context_model_id'], 'string', 'max' => 255],
             [['invitation_user_id'], 'exist', 'skipOnError' => true, 'targetClass' => $this->invitationsModule->model('InvitationUser'), 'targetAttribute' => ['invitation_user_id' => 'id']],
         ];
     }

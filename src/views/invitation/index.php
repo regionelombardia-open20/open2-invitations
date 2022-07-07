@@ -39,7 +39,6 @@ $this->registerJs($js);
 ?>
 
 <div class="invitation-index">
-    <h4><?= Module::t('amosinvitations', '#introduction_invitation', ['platformName' => Yii::$app->name]) ?></h4>
     <?= $this->render('_search', ['model' => $model,]); ?>
     
     <?php

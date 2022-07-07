@@ -11,6 +11,7 @@
 
 namespace open20\amos\invitations\utility;
 
+use open20\amos\admin\AmosAdmin;
 use open20\amos\core\user\User;
 use open20\amos\invitations\Module;
 use yii\base\BaseObject;
@@ -58,6 +59,46 @@ class InvitationsUtility extends BaseObject
             return ['present' => $present, 'message' => $message];
         } else {
             return $present;
+        }
+    }
+    
+    /**
+     * This method returns the register link for the old or new applications.
+     * @param string $registerAction
+     * @return string
+     */
+    public static function getRegisterLink($registerAction = '')
+    {
+        if (!$registerAction) {
+            $registerAction = 'register';
+        }
+        if (\Yii::$app->isCmsApplication()) {
+            if (\Yii::$app->params['linkConfigurations']['registrationLinkCommon']) {
+                $strPosRes = strpos(\Yii::$app->params['linkConfigurations']['registrationLinkCommon'], '/');
+                return (($strPosRes === false) || ($strPosRes > 0) ? '/' : '') . \Yii::$app->params['linkConfigurations']['registrationLinkCommon'];
+            } else {
+                return '/' . \amos\userauth\frontend\Module::getModuleName() . '/default/' . $registerAction;
+            }
+        } else {
+            return '/' . AmosAdmin::getModuleName() . '/security/' . $registerAction;
+        }
+    }
+    
+    /**
+     * This method returns the login link for the old or new applications.
+     * @return string
+     */
+    public static function getLoginLink()
+    {
+        if (\Yii::$app->isCmsApplication()) {
+            if (\Yii::$app->params['linkConfigurations']['loginLinkCommon']) {
+                $strPosRes = strpos(\Yii::$app->params['linkConfigurations']['loginLinkCommon'], '/');
+                return (($strPosRes === false) || ($strPosRes > 0) ? '/' : '') . \Yii::$app->params['linkConfigurations']['loginLinkCommon'];
+            } else {
+                return '/site/login';
+            }
+        } else {
+            return '/' . AmosAdmin::getModuleName() . '/security/login';
         }
     }
 }

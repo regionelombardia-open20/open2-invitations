@@ -13,6 +13,7 @@ use open20\amos\invitations\Module;
 use open20\amos\core\forms\ActiveForm;
 use open20\amos\core\helpers\Html;
 use yii\bootstrap\Modal;
+use open20\amos\core\forms\TextEditorWidget;
 
 /**
  * @var \open20\amos\invitations\models\Invitation $invitation
@@ -160,15 +161,16 @@ $this->registerJs($js, \yii\web\View::POS_READY);
 
         <div class="row">
             <div class="col-lg-12 col-sm-12">
-                <?= $formInvitation->field($invitation, 'message')->widget(\yii\redactor\widgets\Redactor::className(), [
+                <?= $formInvitation->field($invitation, 'message')->widget(TextEditorWidget::className(),
+                    [
                     'clientOptions' => [
-                        'buttonsHide' => [
-                            'image',
-                            'file'
+                        'lang' => substr(Yii::$app->language, 0, 2),
+                        'plugins' => [
+                            "paste link",
                         ],
-                        'lang' => substr(Yii::$app->language, 0, 2)
-                    ]
-                ]) ?>
+                        'toolbar' => "undo redo | link",
+                    ],
+                ]) ?> 
             </div>
         </div>
 
