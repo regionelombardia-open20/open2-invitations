@@ -20,6 +20,9 @@ use open20\amos\invitations\Module;
  * @var $model \open20\amos\invitations\models\Invitation
  */
 
+/** @var Module $invitationsModule */
+$invitationsModule = Module::instance();
+
 $moduleName = null;
 $contextModelId = null;
 
@@ -37,7 +40,7 @@ $contextModelId = $model->context_model_id;
 <div class="col-lg-12">
     <?php
     /** @var InvitationUser $invitationUserModel */
-    $invitationUserModel = $this->invitationsModule->createModel('InvitationUser');
+    $invitationUserModel = $invitationsModule->createModel('InvitationUser');
     $invitationUser = $invitationUserModel::getInvitationUserFromEmail($model->invitationUser->email);
     $invitation = $invitationUser->getInvitations()->orderBy('send_time DESC')->one()
     ?>
