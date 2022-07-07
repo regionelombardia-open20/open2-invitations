@@ -349,11 +349,10 @@ class InvitationController extends CrudController
 
             if (empty($text)) {
                 $text = $this->renderPartial('_invitation_email', ['invitation' => $invitation]);
-                $invitation->send = (int)Email::sendMail($from, $tos, $subject, $text, [], [], [], 0, false);
-                $invitation->send_time = date('Y-m-d H:i:s');
-                $invitation->save(false);
-
             }
+            $invitation->send      = (int) Email::sendMail($from, $tos, $subject, $text, [], [], [], 0, false);
+            $invitation->send_time = date('Y-m-d H:i:s');
+            $invitation->save(false);
         }
         
         return $invitation;

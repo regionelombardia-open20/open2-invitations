@@ -47,13 +47,12 @@ if (!empty($invitation->module_name) && !empty($invitation->context_model_id)) {
 $url = Yii::$app->urlManager->createAbsoluteUrl($urlConf);
 
 $skipTextHowto = false;
-if ($moduleUserAuth && $moduleUserAuth->enableDlSemplificationLight) {
+if ($moduleUserAuth && ($moduleUserAuth->hasProperty('enableDlSemplificationLight') && $moduleUserAuth->enableDlSemplificationLight)) {
     $skipTextHowto = true;
     if (!empty(\Yii::$app->params['linkConfigurations']['loginLinkCommon'])) {
         $redirect = $url;
         $url = Yii::$app->urlManager->createAbsoluteUrl([\Yii::$app->params['linkConfigurations']['loginLinkCommon'], 'redirectToRegisterUrl' => $redirect]);
     }
-
 }
 
 ?>
@@ -65,15 +64,17 @@ if ($moduleUserAuth && $moduleUserAuth->enableDlSemplificationLight) {
             'platformName' => $appName,
             'sender' => $profileSender->nomeCognome
         ]) ?></p>
-    <div style="color:green"><strong><?= $invitation->message ?></strong></div>
-    <p style="text-align: center"><a
-                href="<?= $url ?>"><strong><?= Module::t('amosinvitations', '#registration_page') ?></strong></a></p>
+    <div><strong><?= $invitation->message ?></strong></div>
+    <p style="text-align: center">
+        <a href="<?= $url ?>"><strong><?= Module::t('amosinvitations', '#registration_page') ?></strong></a>
+    </p>
     <?php if (!$skipTextHowto) { ?>
         <p><?= Module::t('amosinvitations', "#text_email_invitation1", ['platformName' => $appName]) ?></p><br>
     <?php } ?>
-    <p style="color:green">
+    <p>
         <strong><?= Module::t('amosinvitations', '#text_email_invitation2', ['platformName' => $appName]) ?></strong>
-    </p><br>
+    </p>
+    <br>
     <p><?= Module::t('amosinvitations', "#text_email_invitation3", ['platformName' => $appName]) ?></p>
 </div>
 
