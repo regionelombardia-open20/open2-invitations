@@ -12,6 +12,8 @@
 namespace open20\amos\invitations\controllers;
 
 use open20\amos\admin\AmosAdmin;
+use open20\amos\admin\models\UserProfile;
+use open20\amos\core\response\Response;
 use open20\amos\invitations\models\GoogleInvitationForm;
 use open20\amos\invitations\models\Invitation;
 use open20\amos\invitations\models\InvitationUser;
@@ -52,6 +54,7 @@ class InvitationController extends base\InvitationController
                             'allow' => true,
                             'actions' => [
                                 'check-email-ajax',
+                                'check-fiscal-code-ajax',
                                 'download-import-template',
                                 'invite-user',
                                 'invite-google',
@@ -119,7 +122,8 @@ class InvitationController extends base\InvitationController
             '/' . Module::getModuleName() . '/invitation/create',
             'moduleName' => $this->moduleName,
             'contextModelId' => $this->contextModelId,
-            'registerAction' => $this->registerAction
+            'registerAction' => $this->registerAction,
+            'category' => \Yii::$app->request->get('category')
         ]);
 
 
@@ -207,6 +211,28 @@ class InvitationController extends base\InvitationController
     }
 
     /**
+     * @param $fiscalCode
+     * @return array
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function actionCheckFiscalCodeAjax($fiscalCode){
+        \Yii::$app->response->format = Response::FORMAT_JSON;
+        $profile = UserProfile::find()->andWhere(['codice_fiscale' => $fiscalCode])->one();
+        $responseArray = [];
+        if(!empty($profile)){
+//            $messageConfirm = Module::t('amosinvitations', "To this email have already been sent {numInviti} invitations, send the invitation again?", ['numInviti' => $num]);
+            $message = Module::t('amosinvitations', "A user is already registered with the fiscal code {fiscalCode}", ['fiscalCode' => $fiscalCode]);
+            $responseArray = ArrayHelper::merge($responseArray, [
+                'success' => '1',
+                'message' => $message,
+//                'messageConfirm' => $messageConfirm,
+            ]);
+        }
+        return $responseArray;
+    }
+
+
+    /**
      * Used by invitation widget to send invitation from modal
      * @return bool|string
      */
@@ -268,6 +294,9 @@ class InvitationController extends base\InvitationController
         $objPHPExcel->getActiveSheet()->SetCellValue('B1', 'NOME');
         $objPHPExcel->getActiveSheet()->SetCellValue('C1', 'COGNOME');
         $objPHPExcel->getActiveSheet()->SetCellValue('D1', 'MESSAGGIO PERSONALE');
+        if($this->invitationsModule->enableFiscalCode){
+            $objPHPExcel->getActiveSheet()->SetCellValue('E1', 'CODICE FISCALE');
+        }
         $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
         $objWriter->save($path);
     }

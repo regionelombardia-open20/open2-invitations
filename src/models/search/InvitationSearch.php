@@ -33,7 +33,7 @@ class InvitationSearch extends Invitation
     {
         return [
             [['id', 'send', 'invitation_user_id', 'created_by', 'updated_by', 'deleted_by'], 'integer'],
-            [['name', 'surname', 'message', 'send_time', 'email', 'created_at', 'updated_at', 'deleted_at'], 'safe'],
+            [['category','name', 'surname', 'message', 'send_time', 'email', 'created_at', 'updated_at', 'deleted_at'], 'safe'],
         ];
     }
     
@@ -53,12 +53,16 @@ class InvitationSearch extends Invitation
         
         /** @var ActiveQuery $query */
         $query = $invitationModel::find()
-            ->andWhere([Invitation::tableName() . '.created_by' => Yii::$app->user->id])
             ->orderBy('send ASC, send_time DESC');
-        
+
+        if($this->invitationsModule && !$this->invitationsModule->showAllInvitationsForContext){
+            $query->andWhere([Invitation::tableName() . '.created_by' => Yii::$app->user->id]);
+        }
+
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
+
         
         $scope = $this->getScope($params);
         if (!($this->load($params, $scope) && $this->validate())) {
@@ -71,10 +75,13 @@ class InvitationSearch extends Invitation
         }
         
         if ((isset($params['moduleName'])) && (isset($params['contextModelId']))) {
-//            if ($params['moduleName'] == 'community') {
             $query->andWhere(['LIKE', 'context_model_id', $params['contextModelId']]);
-//            }
         }
+
+        if ((!empty($params['category']))) {
+            $query->andWhere([ 'invitation.category' => $params['category']]);
+        }
+
         
         
         $query->andFilterWhere([
@@ -107,12 +114,14 @@ class InvitationSearch extends Invitation
         $query->innerJoinWith('invitationUser');
         
         if ((isset($params['moduleName'])) && (isset($params['contextModelId']))) {
-//            if ($params['moduleName'] == 'community') {
             $query
                 ->andWhere(['LIKE', 'context_model_id', $params['contextModelId']]);
-//            }
         }
-        
+
+        if ((!empty($params['category']))) {
+            $query->andWhere([ 'invitation.category' => $params['category']]);
+        }
+
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'sort' => [

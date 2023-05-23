@@ -39,6 +39,9 @@ $urlConf = [
     'iid' => $invitation->id
 ];
 
+if(!empty($invitation->token)){
+    $urlConf['invitation_token'] = $invitation->token;
+}
 if (!empty($invitation->module_name) && !empty($invitation->context_model_id)) {
     $urlConf['moduleName'] = $invitation->module_name;
     $urlConf['contextModelId'] = $invitation->context_model_id;

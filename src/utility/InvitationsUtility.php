@@ -12,6 +12,7 @@
 namespace open20\amos\invitations\utility;
 
 use open20\amos\admin\AmosAdmin;
+use open20\amos\admin\models\UserProfile;
 use open20\amos\core\user\User;
 use open20\amos\invitations\Module;
 use yii\base\BaseObject;
@@ -61,7 +62,16 @@ class InvitationsUtility extends BaseObject
             return $present;
         }
     }
-    
+
+    /**
+     * @param $fiscal_code
+     * @return bool
+     * @throws \yii\base\InvalidConfigException
+     */
+    public static function checkFiscalCodePresent($fiscal_code){
+        $count = UserProfile::find()->andWhere(['codice_fiscale' => $fiscal_code])->count();
+        return $count > 0;
+    }
     /**
      * This method returns the register link for the old or new applications.
      * @param string $registerAction

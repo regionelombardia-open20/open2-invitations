@@ -64,11 +64,47 @@ class Module extends AmosModule implements ModuleInterface, BreadcrumbInterface
      * @var bool $enableFiscalCode If is true the fiscal code is enabled. Default to false.
      */
     public $enableFiscalCode = false;
+
+    /**
+     * @var bool
+     */
+    public $fiscalCodeRequired = false;
     
     /**
      * @var bool $allowOneInvitePerMail When this param is true the controller in create invite allow to create only one invite for each email.
      */
     public $allowOneInvitePerMail = false;
+
+
+    public $enableToken = false;
+
+    public $tokenExpireDays  = 7;
+
+    /**
+     * @var array
+     * [
+            'category1' => 'Label1',
+            'category2' => 'Label2',
+        ];
+     *
+     */
+    public $labelCategories = [];
+
+    /**
+     * @var array
+     *  'modulename' => [
+            'category1' => '/modulename/my-controller1/my-action1',
+            'category2' => '/modulename/my-controller1/my-action1',
+        ]
+     *
+     *  category1 will redirect to modulename/my-controller1/my-action1?id=modelId
+     */
+    public $redirectContextCategories = [];
+
+    /**
+     * @var bool
+     */
+    public $showAllInvitationsForContext = false;
 
     /**
      * @inheritdoc

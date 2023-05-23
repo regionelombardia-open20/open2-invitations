@@ -26,6 +26,7 @@ $invitationsModule = \Yii::$app->getModule('invitations');
 $moduleName = $model->module_name;
 $contextModelId = $model->context_model_id;
 $registerAction = $model->register_action;
+$category = $model->category;
 ?>
 
 <?php $form = ActiveForm::begin() ?>
@@ -51,6 +52,7 @@ $registerAction = $model->register_action;
         'moduleName' => $moduleName,
         'contextModelId' => $contextModelId,
         'registerAction' => $registerAction,
+        'category' => $category,
         'iid' => $invitation->id
     ], ['class' => 'btn btn-primary pull-right']) ?>
     <?php CloseSaveButtonWidget::widget(['model' => $model, 'buttonId' => 're-send-button', 'buttonSaveLabel' => Module::t('amosinvitations', 'Send')]); ?>

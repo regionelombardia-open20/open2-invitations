@@ -28,7 +28,7 @@ class Invitation extends \open20\amos\invitations\models\base\Invitation
     public static function getEditFields()
     {
         $labels = self::attributeLabels();
-        
+
         return [
             [
                 'slug' => 'name',
@@ -62,12 +62,12 @@ class Invitation extends \open20\amos\invitations\models\base\Invitation
             ],
         ];
     }
-    
+
     public function representingColumn()
     {
         return $this->getNameSurname();
     }
-    
+
     /**
      * Returns the text hint for the specified attribute.
      * @param string $attribute the attribute name
@@ -78,18 +78,18 @@ class Invitation extends \open20\amos\invitations\models\base\Invitation
         $hints = $this->attributeHints();
         return isset($hints[$attribute]) ? $hints[$attribute] : null;
     }
-    
+
     public function attributeHints()
     {
         return [
         ];
     }
-    
+
     public function getNameSurname()
     {
         return $this->name . ' ' . $this->surname;
     }
-    
+
     public function getAlreadySended()
     {
         if (!empty($this->invitationUser)) {
@@ -98,7 +98,23 @@ class Invitation extends \open20\amos\invitations\models\base\Invitation
             return false;
         }
     }
-    
+
+    /**
+     * @inheritdoc
+     */
+    public function init()
+    {
+        parent::init();
+        $this->on(self::EVENT_AFTER_INSERT, [$this, 'afterInsertGenerateToken'], $this);
+
+    }
+
+    public function afterInsertGenerateToken($event){
+        /** @var  $invitation Invitation */
+        $invitation = $event->data;
+        $invitation->generateToken();
+    }
+
     /**
      * @param $email
      * @return bool
@@ -107,7 +123,7 @@ class Invitation extends \open20\amos\invitations\models\base\Invitation
     {
         /** @var InvitationUser $invitationUserModel */
         $invitationUserModel = Module::instance()->createModel('InvitationUser');
-        
+
         /** @var ActiveQuery $query */
         $query = $invitationUserModel::find();
         $invitationUser = $query->joinWith('invitations')->andWhere(['invitation_user.email' => $email, 'invitation.send' => 1])->one();
@@ -116,5 +132,46 @@ class Invitation extends \open20\amos\invitations\models\base\Invitation
         } else {
             return true;
         }
+    }
+
+
+    /**
+     *
+     */
+    public function generateToken()
+    {
+        if ($this->invitationsModule->enableToken) {
+            $tokenExpireDays = $this->invitationsModule->tokenExpireDays;
+            //Generate a random string.
+            $token = openssl_random_pseudo_bytes(16);
+
+            //Convert the binary data into hexadecimal representation.
+            $token = bin2hex($token);
+            $this->token = $token;
+
+            if (!empty($tokenExpireDays)) {
+                $start_date = date('Y-m-d H:i:s');
+                $expires = strtotime("+$tokenExpireDays days", strtotime($start_date));
+                $this->token_expire_date = date('Y-m-d H:i:s', $expires);
+            }
+            $this->save(false);
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isTokenValid()
+    {
+        $now = new \DateTime();
+        if (empty($this->token_expire_date)) {
+            return true;
+        }
+
+        $expireDate = new \DateTime($this->token_expire_date);
+        if ($now < $expireDate && !$this->invite_accepted) {
+            return true;
+        }
+        return false;
     }
 }

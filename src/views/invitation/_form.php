@@ -56,6 +56,31 @@ $.get("/invitations/invitation/check-email-ajax", {email: email})
     });
 }
 
+function checkFiscalCode(fiscalCode) {
+  $.ajax({
+            url: '/invitations/invitation/check-fiscal-code-ajax',
+            type: 'GET',
+            data: {fiscalCode: fiscalCode },
+            success: function(data) {
+                 var checkMailElement = $('#check-email');
+                 if (data.success === '1') {
+                        checkMailElement.html(data.message);
+                        if (data.message == '') {
+                            checkMailElement.hide();
+                            checkMailElement.html('');
+                            $('#btn-send-invitation-modal-id').show();
+                        } else {       
+                            checkMailElement.show();
+                            $('#btn-send-invitation-modal-id').hide();
+                        }
+                    } else {
+                        checkMailElement.html('');
+                        checkMailElement.hide();
+                    }
+                }
+            });
+}
+
 checkEmail('$email');
 
 $("#send-invitation").prop("type", "button");
@@ -63,6 +88,12 @@ $("#send-invitation").prop("type", "button");
 $('#email').change(function(e) {
     e.preventDefault();
     checkEmail($(this).val());
+    return true;
+});
+
+$('#fiscal-code-id').change(function(e) {
+    e.preventDefault();
+    checkFiscalCode($(this).val());
     return true;
 });
 
@@ -81,7 +112,7 @@ $this->registerJs($js);
             'id' => 'my-form'
         ]
     ]); ?>
-    
+
     <?php $this->beginBlock('default'); ?>
 
     <div class="col-lg-6 col-sm-6">
@@ -91,13 +122,13 @@ $this->registerJs($js);
     <div class="col-lg-6 col-sm-6">
         <?= $form->field($invitation, 'surname')->textInput(['maxlength' => true]) ?>
     </div>
-    
+
     <?php if ($invitationsModule->enableFiscalCode): ?>
         <div class="col-lg-6 col-sm-6">
             <?= $form->field($invitationUser, 'email')->textInput(['id' => 'email']) ?>
         </div>
         <div class="col-lg-6 col-sm-6">
-            <?= $form->field($invitation, 'fiscal_code')->textInput(['maxlength' => true]) ?>
+            <?= $form->field($invitation, 'fiscal_code')->textInput(['id' => 'fiscal-code-id', 'maxlength' => true]) ?>
         </div>
     <?php else: ?>
         <div class="col-lg-12 col-sm-12">
@@ -106,7 +137,7 @@ $this->registerJs($js);
     <?php endif; ?>
 
     <div class="col-lg-12 col-sm-12 alert alert-warning" style="display: none;" id="check-email"></div>
-    
+
     <?php if ($invitationsModule->enableInviteMessage): ?>
         <div class="col-lg-12 col-sm-12">
             <?= $form->field($invitation, 'message')->widget(TextEditorWidget::className(), [
@@ -117,18 +148,19 @@ $this->registerJs($js);
             ]) ?>
         </div>
     <?php endif; ?>
+    <?= $form->field($invitation, 'category')->hiddenInput()->label(false); ?>
 
     <div class="clearfix"></div>
-    
+
     <?php $this->endBlock(); ?>
-    
+
     <?php
     $itemsTab[] = [
         'label' => Module::t('amosinvitations', 'Default'),
         'content' => $this->blocks['default'],
     ];
     ?>
-    
+
     <?= Tabs::widget([
         'encodeLabels' => false,
         'items' => $itemsTab
@@ -150,7 +182,7 @@ $this->registerJs($js);
             </div>
         </div>
     </div>
-    
+
     <?= CloseSaveButtonWidget::widget([
         'model' => $invitation,
         'buttonNewSaveLabel' => Module::t('amosinvitations', '#form_save_btn_label'),

@@ -30,7 +30,10 @@ use open20\amos\invitations\Module;
  * @property string $register_action
  * @property string $module_name
  * @property string $context_model_id
+ * @property string $category
  * @property integer $invitation_user_id
+ * @property integer $token
+ * @property integer $token_expire_date
  * @property string $created_at
  * @property string $updated_at
  * @property string $deleted_at
@@ -76,12 +79,17 @@ class Invitation extends Record
             'name',
             'surname'
         ];
-        if ($this->invitationsModule->enableInviteMessage) {
+        if ($this->invitationsModule && $this->invitationsModule->enableInviteMessage) {
             $requiredArray[] = 'message';
         }
+
+        if($this->invitationsModule && $this->invitationsModule->enableFiscalCode && $this->invitationsModule->fiscalCodeRequired){
+            $requiredArray[] = 'fiscal_code';
+        }
+
         return [
             [['message'], 'string'],
-            [['send_time', 'created_at', 'updated_at', 'deleted_at'], 'safe'],
+            [['token', 'token_expire_date', 'category','send_time', 'created_at', 'updated_at', 'deleted_at'], 'safe'],
             [['invite_accepted', 'send', 'invitation_user_id', 'created_by', 'updated_by', 'deleted_by'], 'integer'],
             [$requiredArray, 'required'],
             [['fiscal_code'], 'string', 'max' => 16],

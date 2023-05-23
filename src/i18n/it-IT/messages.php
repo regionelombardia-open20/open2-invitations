@@ -28,7 +28,9 @@ return [
     'Import error: {message}' => 'Errore importazione: {message}',
     'Import invitations' => 'Importa inviti',
     '#import_invitations_not_valid_mails' => 'Verificare le seguenti mail non valide',
+    '#import_invitations_not_valid_fiscal_codes' => 'Verificare i seguenti codici fiscali non validi',
     '#import_invitations_users_already_present' => 'Le seguenti email corrispondono ad utenti già presenti in piattaforma',
+    '#import_invitations_users_already_present_cfs' => 'I seguenti codici fiscali corrispondono ad utenti già presenti in piattaforma',
     '#introduction_invitation' => 'Puoi invitare via email persone non ancora registrate nella piattaforma {platformName} ad iscriversi per collaborare con te e con gli altri utenti. É possibile invitare una persona per volta oppure importare i tuoi inviti da file excel e poi inviarli.',
     'Invitation' => 'Invito',
     'Invitation addressed to {nameSurname}' => 'Invito indirizzato a {nameSurname}',
@@ -105,5 +107,6 @@ return [
     "#are-you-sure-delete-all" => "Sei sicuro di eliminare tutti gli inviti selezionati?",
     'Invite accepted' => 'Invito accettato',
     'Email already present in platform' => 'Email presente in piattaforma',
-    'Invia massivamente le mail di invito dei <strong>record selezionati</strong>' => 'Invia massivamente le mail di invito dei <strong>record selezionati</strong>'
+    'Invia massivamente le mail di invito dei <strong>record selezionati</strong>' => 'Invia massivamente le mail di invito dei <strong>record selezionati</strong>',
+    "Back" => 'Torna indietro'
 ];

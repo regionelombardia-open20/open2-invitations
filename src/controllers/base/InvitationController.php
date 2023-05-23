@@ -115,6 +115,9 @@ class InvitationController extends CrudController
                     if (strlen($ret['imp_mail_error']) > 0) {
                         $message .= '<br>' . $ret['imp_mail_error'];
                     }
+                    if (strlen($ret['imp_cfs_error']) > 0) {
+                        $message .= '<br>' . $ret['imp_cfs_error'];
+                    }
                     Yii::$app->getSession()->addFlash('warning', $message);
                 }
             }
@@ -134,6 +137,9 @@ class InvitationController extends CrudController
             'num_not_valid_mails' => 0,
             'num_users_already_present' => 0,
             'imp_mail_error' => '',
+            'imp_cfs_error' => '',
+            'num_not_valid_cfs' => 0,
+
         ];
         
         $transaction = Yii::$app->db->beginTransaction();
@@ -149,6 +155,8 @@ class InvitationController extends CrudController
                 $contextModelId = null;
                 $registerAction = null;
             }
+            $category = \Yii::$app->request->get('category');
+
             
             $submitImport = Yii::$app->request->post('submit-import');
             if (!empty($submitImport)) {
@@ -163,7 +171,9 @@ class InvitationController extends CrudController
                     $highestColumn = $sheet->getHighestColumn();
                     $validator = new EmailValidator();
                     $notValidEmails = [];
+                    $notValidCfs = [];
                     $usersAlreadyPresentEmails = [];
+                    $usersAlreadyPresentCfs = [];
                     for ($row = 2; $row <= $highestRow; $row++) {
                         $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row,
                             NULL,
@@ -174,7 +184,27 @@ class InvitationController extends CrudController
                         $name = trim($invitationArray[1]);
                         $surname = trim($invitationArray[2]);
                         $message = trim($invitationArray[3]);
-                        if ($validator->validate($email)) {
+                        $fiscalCode = null;
+                        $isValidCf  = true;
+                        if($this->invitationsModule->enableFiscalCode){
+                            $fiscalCode = trim($invitationArray[4]);
+                            if($this->invitationsModule->fiscalCodeRequired) {
+                                if (empty($fiscalCode)) {
+                                    $ret['num_no_imp']++;
+                                    $ret['num_not_valid_cfs']++;
+                                    $isValidCf = false;
+                                } else {
+                                    $isValidCf = true;
+                                    if(InvitationsUtility::checkFiscalCodePresent($fiscalCode)){
+                                        $isValidCf = false;
+                                        $ret['num_users_already_present']++;
+                                        $ret['num_no_imp']++;
+                                        $usersAlreadyPresentCfs[] = "'$fiscalCode'";
+                                    }
+                                }
+                            }
+                        }
+                        if ($validator->validate($email) && $isValidCf) {
                             if (InvitationsUtility::checkUserAlreadyPresent($email, true)) {
                                 $usersAlreadyPresentEmails[] = "'$email'";
                                 $ret['num_no_imp']++;
@@ -197,7 +227,8 @@ class InvitationController extends CrudController
                                 $invitation->name = $name;
                                 $invitation->surname = $surname;
                                 $invitation->message = $message;
-                                
+                                $invitation->fiscal_code = $fiscalCode;
+
                                 if ($moduleName && $contextModelId) {
                                     $invitation->module_name = $this->moduleName;
                                     $invitation->context_model_id = $this->contextModelId;
@@ -205,15 +236,25 @@ class InvitationController extends CrudController
                                         $invitation->register_action = $this->registerAction;
                                     }
                                 }
+                                if(!empty($category)){
+                                    $invitation->category = $category;
+                                }
                                 
                                 $invitation->save(false);
                                 $ret['num_imp']++;
                             }
                         } else {
-                            $notValidEmails[] = "'$email'";
-                            $ret['num_not_valid_mails']++;
-                            $ret['num_no_imp']++;
+                            if(!$isValidCf){
+                                $notValidCfs[] = "'$fiscalCode'";
+                            }else {
+                                $notValidEmails[] = "'$email'";
+                                $ret['num_not_valid_mails']++;
+                                $ret['num_no_imp']++;
+                            }
                         }
+                    }
+                    if ($ret['num_not_valid_cfs'] > 0) {
+                        $ret['imp_cfs_error'] .= Module::t('amosinvitations', '#import_invitations_not_valid_fiscal_codes') . ': ' . implode(', ', $notValidCfs);
                     }
                     if ($ret['num_not_valid_mails'] > 0) {
                         $ret['imp_mail_error'] .= Module::t('amosinvitations', '#import_invitations_not_valid_mails') . ': ' . implode(', ', $notValidEmails);
@@ -222,13 +263,17 @@ class InvitationController extends CrudController
                         if (strlen($ret['imp_mail_error']) > 0) {
                             $ret['imp_mail_error'] .= '<br>';
                         }
-                        $ret['imp_mail_error'] .= Module::t('amosinvitations', '#import_invitations_users_already_present') . ': ' . implode(', ', $usersAlreadyPresentEmails);
+                        if(!empty($usersAlreadyPresentEmails)) {
+                            $ret['imp_mail_error'] .= Module::t('amosinvitations', '#import_invitations_users_already_present') . ': ' . implode(', ', $usersAlreadyPresentEmails);
+                        }
+                        if(!empty($usersAlreadyPresentCfs)) {
+                            $ret['imp_mail_error'] .= Module::t('amosinvitations', '#import_invitations_users_already_present_cfs') . ': ' . implode(', ', $usersAlreadyPresentCfs);
+                        }
                     }
                 }
             } else {
                 $ret = null;
             }
-            
             $transaction->commit();
         } catch (\Exception $e) {
             $ret['error'] = $e->getMessage();
@@ -315,6 +360,7 @@ class InvitationController extends CrudController
     protected function sendMailInvitation($invitation)
     {
         if (!empty($invitation)) {
+            $invitation->save(false);
             $text = '';
             $subjectText = '';
             if ($this->moduleName && $this->contextModelId) {
@@ -345,11 +391,9 @@ class InvitationController extends CrudController
                 $subject = Module::t('amosinvitations', '#subject-invite', ['platformName' => Yii::$app->name]);
             }
 
-            $invitation->save(false);
-
             if (empty($text)) {
                 $text = $this->renderPartial('_invitation_email', ['invitation' => $invitation]);
-            }
+            };
             $invitation->send      = (int) Email::sendMail($from, $tos, $subject, $text, [], [], [], 0, false);
             $invitation->send_time = date('Y-m-d H:i:s');
             $invitation->save(false);
@@ -417,13 +461,13 @@ class InvitationController extends CrudController
             return $this->render('view', ['model' => $model]);
         }
     }
-    
+
     /**
      * Creates a new Invitation model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
-    public function actionCreate()
+    public function actionCreate($redirectUrl = null)
     {
         $this->setUpLayout('form');
         
@@ -442,6 +486,10 @@ class InvitationController extends CrudController
                 $invitation->register_action = $this->registerAction;
             }
         }
+        $category = \Yii::$app->request->get('category');
+        if(!empty($category)){
+            $invitation->category = $category;
+        }
         
         if (!Yii::$app->request->isAjax) {
             if ($invitation->load(Yii::$app->request->post()) && $invitationUser->load(Yii::$app->request->post())) {
@@ -457,7 +505,7 @@ class InvitationController extends CrudController
             }
         }
         
-        return $this->sendInvitation('create', $invitation, $invitationUser);
+        return $this->sendInvitation('create', $invitation, $invitationUser, $redirectUrl);
     }
     
     /**
@@ -474,6 +522,7 @@ class InvitationController extends CrudController
         /** @var Invitation $invitation */
         $invitation = $invitationModel::findOne($id);
         $email = $invitation->invitationUser->email;
+        $category = \Yii::$app->request->get('category');
         
         if ($this->moduleName && $this->contextModelId) {
             $invitation->module_name = $this->moduleName;
@@ -489,14 +538,16 @@ class InvitationController extends CrudController
                     'index-all',
                     'moduleName' => ($this->moduleName ? $this->moduleName : null),
                     'contextModelId' => ($this->contextModelId ? $this->contextModelId : null),
-                    'registerAction' => ($this->registerAction ? $this->registerAction : null)
+                    'registerAction' => ($this->registerAction ? $this->registerAction : null),
+                    'category' => $category ? $category : null
                 ]);
             } else {
                 return $this->redirect([
                     'index',
                     'moduleName' => ($this->moduleName ? $this->moduleName : null),
                     'contextModelId' => ($this->contextModelId ? $this->contextModelId : null),
-                    'registerAction' => ($this->registerAction ? $this->registerAction : null)
+                    'registerAction' => ($this->registerAction ? $this->registerAction : null),
+                    'category' => $category ? $category : null
                 ]);
             }
         }
@@ -508,14 +559,18 @@ class InvitationController extends CrudController
                 'index-all',
                 'moduleName' => ($this->moduleName ? $this->moduleName : null),
                 'contextModelId' => ($this->contextModelId ? $this->contextModelId : null),
-                'registerAction' => ($this->registerAction ? $this->registerAction : null)
+                'registerAction' => ($this->registerAction ? $this->registerAction : null),
+                'category' => $category ? $category : null
+
             ]);
         } else {
             return $this->redirect([
                 'index',
                 'moduleName' => ($this->moduleName ? $this->moduleName : null),
                 'contextModelId' => ($this->contextModelId ? $this->contextModelId : null),
-                'registerAction' => ($this->registerAction ? $this->registerAction : null)
+                'registerAction' => ($this->registerAction ? $this->registerAction : null),
+                'category' => $category ? $category : null
+
             ]);
         }
     }
@@ -532,9 +587,11 @@ class InvitationController extends CrudController
         $newInvitation->message = $invitation->message;
         $newInvitation->name = $invitation->name;
         $newInvitation->surname = $invitation->surname;
+        $newInvitation->fiscal_code = $invitation->fiscal_code;
         $newInvitation->module_name = $invitation->module_name;
         $newInvitation->context_model_id = $invitation->context_model_id;
         $newInvitation->register_action = $invitation->register_action;
+        $newInvitation->category = $invitation->category;
         $newInvitation->save();
         $invitationSent = $this->sendMailInvitation($newInvitation);
         if ($invitationSent->save()) {
@@ -545,14 +602,16 @@ class InvitationController extends CrudController
             Yii::$app->getSession()->addFlash('danger', Module::t('amosinvitations', 'Item not sended, check data'));
         }
     }
-    
+
     /**
-     * @param string $actionView
-     * @param Invitation $invitation
-     * @param InvitationUser $invitationUser
+     * @param $actionView
+     * @param $invitation
+     * @param $invitationUser
+     * @param null $redirectUrl
      * @return string|\yii\web\Response
+     * @throws \yii\base\InvalidConfigException
      */
-    protected function sendInvitation($actionView, $invitation, $invitationUser)
+    protected function sendInvitation($actionView, $invitation, $invitationUser, $redirectUrl = null)
     {
         $amosAdminModuleName = AmosAdmin::getModuleName();
         $message = '';
@@ -567,6 +626,9 @@ class InvitationController extends CrudController
                     ]);
                 }
                 $sessionUrl = Yii::$app->session->get(Module::beginCreateNewSessionKey());
+                if(!empty($redirectUrl)){
+                    return $this->redirect($redirectUrl);
+                }
                 if (!is_null($sessionUrl)) {
                     return $this->redirect($sessionUrl);
                 }
@@ -587,12 +649,13 @@ class InvitationController extends CrudController
                         }
                     }
                 }
-                
+
                 return $this->redirect([
                     'index' . (Yii::$app->user->can('ADMIN') ? '-all' : ''),
                     'moduleName' => ($this->moduleName ? $this->moduleName : null),
                     'contextModelId' => ($this->contextModelId ? $this->contextModelId : null),
-                    'registerAction' => ($this->registerAction ? $this->registerAction : null)
+                    'registerAction' => ($this->registerAction ? $this->registerAction : null),
+                    'category' => (\Yii::$app->request->get('category') ? \Yii::$app->request->get('category') : null),
                 ]);
             }
             // check if email is unique... if not i find this email in database, and i use this to create notification
@@ -607,6 +670,7 @@ class InvitationController extends CrudController
                         ]);
                     }
                 }
+
             } else {
                 /** @var InvitationUser $invitationUserModel */
                 $invitationUserModel = $this->invitationsModule->createModel('InvitationUser');
@@ -623,12 +687,16 @@ class InvitationController extends CrudController
                 $message = Module::t('amosinvitations', 'Item sended');
                 if ($actionView) {
                     Yii::$app->getSession()->addFlash('success', $message);
-                    
+
+                    if(!empty($redirectUrl)){
+                        return $this->redirect($redirectUrl);
+                    }
                     $sessionUrl = Yii::$app->session->get(Module::beginCreateNewSessionKey());
                     if (!is_null($sessionUrl)) {
                         return $this->redirect($sessionUrl);
                     }
-                    
+
+
                     if (!empty($this->returnTo)) {
                         $explode = explode('_', $this->returnTo);
                         if (count($explode) == 2) {
@@ -645,12 +713,13 @@ class InvitationController extends CrudController
                             }
                         }
                     }
-                    
                     return $this->redirect([
                         'index' . (Yii::$app->user->can('ADMIN') ? '-all' : ''),
                         'moduleName' => ($this->moduleName ? $this->moduleName : null),
                         'contextModelId' => ($this->contextModelId ? $this->contextModelId : null),
-                        'registerAction' => ($this->registerAction ? $this->registerAction : null)
+                        'registerAction' => ($this->registerAction ? $this->registerAction : null),
+                        'category' => (\Yii::$app->request->get('category') ? \Yii::$app->request->get('category') : null),
+
                     ]);
                 }
             } else {
@@ -762,7 +831,9 @@ class InvitationController extends CrudController
             'index',
             'moduleName' => ($this->moduleName ? $this->moduleName : null),
             'contextModelId' => ($this->contextModelId ? $this->contextModelId : null),
-            'registerAction' => ($this->registerAction ? $this->registerAction : null)
+            'registerAction' => ($this->registerAction ? $this->registerAction : null),
+            'category' => (\Yii::$app->request->get('category') ? \Yii::$app->request->get('category') : null),
+
         ]);
     }
     
@@ -771,6 +842,10 @@ class InvitationController extends CrudController
      */
     private function setCreateNewBtnLabel()
     {
+
+        $redirectContextCategories = $this->invitationsModule->redirectContextCategories;
+        $urlBackToContext = null;
+
         $importInvite = Html::button(Module::t('amosinvitations', 'Import invitations'), [
             'class' => 'btn btn-outline-secondary',
             'data-toggle' => 'modal',
@@ -793,6 +868,15 @@ class InvitationController extends CrudController
             }
         }
 
+        if (!empty($this->moduleName) && !empty($redirectContextCategories) && !empty($redirectContextCategories[$this->moduleName])) {
+            if (!empty($redirectContextCategories[$this->moduleName][\Yii::$app->request->get('category')])) {
+                $urlBackToContext = [$redirectContextCategories[$this->moduleName][\Yii::$app->request->get('category')], 'id' => $this->contextModelId];
+                $additionalButtons[] = Html::a(Module::t('amosinvitations', "Back"), $urlBackToContext, [
+                    'class' => 'btn btn-secondary',
+                    'title' => Module::t('amosinvitations', "Back")
+                ]);
+            }
+        }
         /**
          * Addition buttons
          */
@@ -802,9 +886,16 @@ class InvitationController extends CrudController
                 $additionalButtons[]= $inviteFromGoogle;
             }
         }
-        
+
+
+
         Yii::$app->view->params['createNewBtnParams'] = [
-            'urlCreateNew' => ['create', 'moduleName' => $this->moduleName, 'contextModelId' => $this->contextModelId, 'registerAction' => $this->registerAction],
+            'urlCreateNew' => ['create',
+                'moduleName' => $this->moduleName,
+                'contextModelId' => $this->contextModelId,
+                'registerAction' => $this->registerAction,
+                'category' => \Yii::$app->request->get('category')
+            ],
             'createNewBtnLabel' => AmosAdmin::t('amosinvitations', '#create_new_invite'),
             'layout' => "{buttonCreateNew}"
         ];
