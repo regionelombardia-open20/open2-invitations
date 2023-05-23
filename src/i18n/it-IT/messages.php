@@ -86,6 +86,7 @@ return [
     'Upload the file' => 'Carica il file',
     '#user_already_present' => "Utente con email '{email}' già presente nella piattaforma.",
     '#user_already_present_inactive' => "Utente con email '{email}' già presente ma disattivato nella piattaforma. Richiederne la riattivazione tramite la pagina di login.",
+    '#user_prevent_bomb_sending' => 'Email già contattata nelle ultime {preventBombSendingHours} ore',
     '#invite_google_btn' => 'Invita contatti da Google',
     '#send_invitation_google' => 'Invita i tuoi contatti Google',
     '#message_placeholder' => 'Scrivi qui il tuo messaggio di invito...',

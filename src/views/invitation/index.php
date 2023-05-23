@@ -82,7 +82,7 @@ $this->registerJs($js);
                                 'class' => 'open20\amos\core\views\grid\CheckboxColumn',
                                 'name' => 'Invitation[selection]',
                                 'header' => Module::t('amosinvitations', 'Selection'),
-                                'checkboxOptions' => function ($model, $key, $index, $column) {
+                                'checkboxOptions' => function ($model, $key, $index, $column) use ($invitationsModule) {
                                     /** @var Invitation $model */
                                     //                            if ($model->send) {
                                     $retArray = \open20\amos\invitations\utility\InvitationsUtility::checkUserAlreadyPresent($model->invitationUser->email, true, true);
@@ -90,6 +90,11 @@ $this->registerJs($js);
                                         return [
                                             'disabled' => true,
                                             'title' => $retArray['message'],
+                                        ];
+                                    } elseif (!empty($invitationsModule->preventBombSendingHours) && $model->alreadySended($model->invitationUser->email, $invitationsModule->preventBombSendingHours)){
+                                        return [
+                                            'disabled' => true,
+                                            'title' => Module::t('amosinvitations', '#user_prevent_bomb_sending', ['preventBombSendingHours' => $invitationsModule->preventBombSendingHours])
                                         ];
                                     }
                                 }
@@ -163,7 +168,7 @@ $this->registerJs($js);
                                         //                                    return '';
                                         //                                }
                                     },
-                                    're-send' => function ($url, $model) use ($moduleName, $contextModelId) {
+                                    're-send' => function ($url, $model) use ($moduleName, $contextModelId, $invitationsModule) {
                                         /** @var \open20\amos\invitations\models\Invitation $model */
                                         if ($model->send
                                             /**&& \Yii::$app->user->can('INVITATIONS_ADMINISTRATOR')**/
@@ -183,6 +188,10 @@ $this->registerJs($js);
                                             if ($retArray['present']) {
                                                 $options['disabled'] = true;
                                                 $options['title'] = $retArray['message'];
+                                                $options['class'] = 'btn btn-tools-secondary';
+                                            } elseif (!empty($invitationsModule->preventBombSendingHours) && $model->alreadySended($model->invitationUser->email, $invitationsModule->preventBombSendingHours)){
+                                                $options['disabled'] = true;
+                                                $options['title'] = Module::t('amosinvitations', '#user_prevent_bomb_sending', ['preventBombSendingHours' => $invitationsModule->preventBombSendingHours]);
                                                 $options['class'] = 'btn btn-tools-secondary';
                                             }
                                             $btn = Html::a(AmosIcons::show('mail-send'), 'javascript:void(0)', $options);

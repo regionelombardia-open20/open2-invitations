@@ -119,14 +119,20 @@ class Invitation extends \open20\amos\invitations\models\base\Invitation
      * @param $email
      * @return bool
      */
-    public static function alreadySended($email)
+    public static function alreadySended($email, $inTheLastHours = null)
     {
         /** @var InvitationUser $invitationUserModel */
         $invitationUserModel = Module::instance()->createModel('InvitationUser');
 
         /** @var ActiveQuery $query */
         $query = $invitationUserModel::find();
-        $invitationUser = $query->joinWith('invitations')->andWhere(['invitation_user.email' => $email, 'invitation.send' => 1])->one();
+        $invitationUserQyery = $query->joinWith('invitations')
+            ->andWhere(['invitation_user.email' => $email, 'invitation.send' => 1]);
+        if (!is_null($inTheLastHours) && is_int($inTheLastHours)) {
+            $invitationUserQyery->andWhere(['>=', 'invitation.send_time', date('Y-m-d H:i:s', strtotime("- $inTheLastHours hours"))]);
+        }
+        $invitationUser = $invitationUserQyery->one();
+
         if (empty($invitationUser)) {
             return false;
         } else {

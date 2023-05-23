@@ -81,6 +81,11 @@ class Module extends AmosModule implements ModuleInterface, BreadcrumbInterface
     public $tokenExpireDays  = 7;
 
     /**
+     * @var int $preventBombSendingHours HOURS - sendings to the same email only if this time has passed
+     */
+    public $preventBombSendingHours = 24;
+
+    /**
      * @var array
      * [
             'category1' => 'Label1',

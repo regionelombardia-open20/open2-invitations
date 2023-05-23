@@ -12,15 +12,18 @@
 namespace open20\amos\invitations\controllers\base;
 
 use open20\amos\admin\AmosAdmin;
+use open20\amos\attachments\exceptions\AmosAbuseReplyAttemptsException;
 use open20\amos\core\controllers\CrudController;
 use open20\amos\core\helpers\Html;
 use open20\amos\core\icons\AmosIcons;
 use open20\amos\core\utilities\Email;
+use open20\amos\invitations\exceptions\AmosMessageBombAttemptsException;
 use open20\amos\invitations\models\Invitation;
 use open20\amos\invitations\models\InvitationUser;
 use open20\amos\invitations\Module;
 use open20\amos\invitations\utility\InvitationsUtility;
 use Yii;
+use yii\base\InvalidConfigException;
 use yii\helpers\Url;
 use yii\validators\EmailValidator;
 use yii\web\BadRequestHttpException;
@@ -359,6 +362,13 @@ class InvitationController extends CrudController
      */
     protected function sendMailInvitation($invitation)
     {
+
+        // for messagge bombing!
+        if (!empty($this->invitationsModule->preventBombSendingHours)
+            && $invitation->alreadySended($invitation->invitationUser->email, $this->invitationsModule->preventBombSendingHours)){
+            throw new AmosMessageBombAttemptsException('Parameter preventBombSendingHours:' . $this->invitationsModule->preventBombSendingHours);
+        }
+
         if (!empty($invitation)) {
             $invitation->save(false);
             $text = '';
@@ -531,6 +541,8 @@ class InvitationController extends CrudController
                 $invitation->register_action = $this->registerAction;
             }
         }
+
+
         
         if (InvitationsUtility::checkUserAlreadyPresent($email)) {
             if (Yii::$app->user->can('ADMIN')) {
@@ -574,13 +586,20 @@ class InvitationController extends CrudController
             ]);
         }
     }
-    
+
     /**
      * @param Invitation $invitation
      * @param bool $showAddflash
+     * @throws AmosMessageBombAttemptsException
+     * @throws InvalidConfigException
      */
     public function resend($invitation, $showAddflash = true)
     {
+        if (!empty($this->invitationsModule->preventBombSendingHours)
+            && $invitation->alreadySended($invitation->invitationUser->email, $this->invitationsModule->preventBombSendingHours)){
+            throw new AmosMessageBombAttemptsException('Parameter preventBombSendingHours:' . $this->invitationsModule->preventBombSendingHours);
+        }
+
         /** @var Invitation $newInvitation */
         $newInvitation = $this->invitationsModule->createModel('Invitation');
         $newInvitation->invitation_user_id = $invitation->invitation_user_id;
@@ -616,6 +635,20 @@ class InvitationController extends CrudController
         $amosAdminModuleName = AmosAdmin::getModuleName();
         $message = '';
         if ($invitationUser->load(Yii::$app->request->post())) {
+
+            // prevent send message bomb - message
+            if (!empty($this->invitationsModule->preventBombSendingHours)
+                && $invitation->alreadySended($invitationUser->email, $this->invitationsModule->preventBombSendingHours)){
+                $message = Module::t('amosinvitations', '#user_prevent_bomb_sending', ['preventBombSendingHours' => $this->invitationsModule->preventBombSendingHours]);
+                if ($actionView) {
+                    Yii::$app->getSession()->addFlash('danger', $message);
+                    return $this->render($actionView, [
+                        'invitation' => $invitation,
+                        'invitationUser' => $invitationUser,
+                    ]);
+                }
+            }
+
             $retCheckUser = InvitationsUtility::checkUserAlreadyPresent($invitationUser->email, true, true);
             if ($retCheckUser['present']) {
                 if (!is_null($actionView)) {
@@ -679,7 +712,7 @@ class InvitationController extends CrudController
                 $invitationUser = $invitationUserModel::findOne(['email' => $invitationUser->email]);
             }
         }
-        
+
         $invitation->invitation_user_id = $invitationUser->id;
         if ($invitation->load(Yii::$app->request->post()) && $invitation->validate()) {
             $invitation = $this->sendMailInvitation($invitation);
@@ -774,24 +807,28 @@ class InvitationController extends CrudController
                 return $this->sendInvitation('update', $invitation, $invitationUser);
             } else {
                 if ($invitation->load(Yii::$app->request->post())) {
-                    $this->resend($invitation);
-                    $sessionUrl = Yii::$app->session->get(Module::beginCreateNewSessionKey());
-                    if (Yii::$app->user->can('ADMIN')) {
-                        return $this->redirect([
-                            'index-all',
-                            'moduleName' => ($this->moduleName ? $this->moduleName : null),
-                            'contextModelId' => ($this->contextModelId ? $this->contextModelId : null),
-                            'registerAction' => ($this->registerAction ? $this->registerAction : null)
-                        ]);
-                    } else if (!is_null($sessionUrl)) {
-                        return $this->redirect($sessionUrl);
-                    } else {
-                        return $this->redirect([
-                            'index',
-                            'moduleName' => ($this->moduleName ? $this->moduleName : null),
-                            'contextModelId' => ($this->contextModelId ? $this->contextModelId : null),
-                            'registerAction' => ($this->registerAction ? $this->registerAction : null)
-                        ]);
+                    try {
+                        $this->resend($invitation);
+                        $sessionUrl = Yii::$app->session->get(Module::beginCreateNewSessionKey());
+                        if (Yii::$app->user->can('ADMIN')) {
+                            return $this->redirect([
+                                'index-all',
+                                'moduleName' => ($this->moduleName ? $this->moduleName : null),
+                                'contextModelId' => ($this->contextModelId ? $this->contextModelId : null),
+                                'registerAction' => ($this->registerAction ? $this->registerAction : null)
+                            ]);
+                        } else if (!is_null($sessionUrl)) {
+                            return $this->redirect($sessionUrl);
+                        } else {
+                            return $this->redirect([
+                                'index',
+                                'moduleName' => ($this->moduleName ? $this->moduleName : null),
+                                'contextModelId' => ($this->contextModelId ? $this->contextModelId : null),
+                                'registerAction' => ($this->registerAction ? $this->registerAction : null)
+                            ]);
+                        }
+                    } catch (AmosMessageBombAttemptsException $exception) {
+                        Yii::$app->getSession()->addFlash('danger', Module::t('amosinvitations', '#user_prevent_bomb_sending', ['preventBombSendingHours' => $this->invitationsModule->preventBombSendingHours]));
                     }
                 }
             }

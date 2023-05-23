@@ -87,6 +87,7 @@ return [
     'Upload the file' => 'Upload the file',
     '#user_already_present' => "User with email '{email}' already present in platform",
     '#user_already_present_inactive' => "User with email '{email}' already present but deactivated in platform. Ask the reactivation by the login page.",
+    '#user_prevent_bomb_sending' => 'Email already contacted in the last {preventBombSendingHours} hours',
     '#invite_google_btn' => 'Invite contacts from Google',
     '#send_invitation_google' => 'Send invitation to your Google contacts',
     '#message_placeholder' => 'Write here your invitation message...',

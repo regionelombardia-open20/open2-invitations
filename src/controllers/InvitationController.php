@@ -14,6 +14,7 @@ namespace open20\amos\invitations\controllers;
 use open20\amos\admin\AmosAdmin;
 use open20\amos\admin\models\UserProfile;
 use open20\amos\core\response\Response;
+use open20\amos\invitations\exceptions\AmosMessageBombAttemptsException;
 use open20\amos\invitations\models\GoogleInvitationForm;
 use open20\amos\invitations\models\Invitation;
 use open20\amos\invitations\models\InvitationUser;
@@ -21,6 +22,7 @@ use open20\amos\invitations\models\UserToInvite;
 use open20\amos\invitations\Module;
 use open20\amos\invitations\utility\InvitationsUtility;
 use Yii;
+use yii\base\InvalidConfigException;
 use yii\data\ArrayDataProvider;
 use yii\filters\AccessControl;
 use yii\filters\AccessRule;
@@ -304,6 +306,7 @@ class InvitationController extends base\InvitationController
     /**
      * @param int $id
      * @return string
+     * @throws InvalidConfigException|AmosMessageBombAttemptsException
      */
     public function actionInvitationsSent($id)
     {
@@ -312,6 +315,12 @@ class InvitationController extends base\InvitationController
 
         /** @var Invitation $model */
         $model = $invitationModel::findOne($id);
+
+        if (!empty($this->invitationsModule->preventBombSendingHours)
+            && $model->alreadySended($model->invitationUser->email, $this->invitationsModule->preventBombSendingHours)){
+            throw new AmosMessageBombAttemptsException('Parameter preventBombSendingHours:' . $this->invitationsModule->preventBombSendingHours);
+        }
+
         if ($this->moduleName && $this->contextModelId) {
             $model->module_name = $this->moduleName;
             $model->context_model_id = $this->contextModelId;
