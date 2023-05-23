@@ -63,7 +63,7 @@ return [
     'Re-send invitation' => 'Invia di nuovo invito',
     'Re-send' => 'Invia di nuovo',
     'Selection' => 'Seleziona',
-    'Send all selected' => 'Invia tutti i selezionati',
+    'Send all selected' => 'Invio massivo',
     'Send invitation' => 'Invia',
     '#send_invitation_one_invite_allowed_message' => "Invito multiplo a stessa mail non consentito",
     '#send_invitation_one_invite_allowed_message_confirm' => "Non è consentito inviare un invito più di una volta alla stessa email",
@@ -71,7 +71,7 @@ return [
     '#subject-invite' => '{platformName}: una piattaforma per chi fa innovazione aperta',
     'Surname' => 'Cognome',
     '#text_email_invitation0' => "{sender} desidera invitarti a registrarti e collaborare sulla piattaforma {platformName}.",
-    '#text_email_invitation1' => "Per velocizzare l'iscrizione troverai i campi precompilati con i tuoi dati, puoi modificarli in qualsiasi momento. Inoltre, una breve guida ti introdurrà all'utilizzo della piattaforma in modo semplice e veloce.",
+    '#text_email_invitation1' => "Per velocizzare l'iscrizione troverai i campi precompilati con i tuoi dati, puoi modificarli in qualsiasi momento.",
     '#text_email_invitation2' => "Ottieni il massimo dalla piattaforma {platformName}, incontra altri professionisti, iscriviti alle community e partecipa allo sviluppo di progetti innovativi",
     '#text_email_invitation3' => "La piattaforma {platformName} è uno strumento collaborativo per facilitare l'incontro fra quanti si occupano di innovazione, con l'obiettivo di mettere a sistema le loro competenze e promuovere la creazione di ecosistemi di innovazione che contribuiscono ad affrontare le sfide strategiche per la crescita in campo industriale, economico e sociale.",
     'This notification was sent?' => 'Invito inviato',
@@ -101,8 +101,9 @@ return [
     'An invitation has been deleted' => "Un invito è stato eliminato",
     '{num} invitations were deleted' => "Sono stati eliminati {num} inviti",
     'No invitation deleted' => "Nessun invito è stato eliminato",
-    "Delete all selected" => "Elimina tutti i selezionati",
+    "Delete all selected" => "Elimina importati",
     "#are-you-sure-delete-all" => "Sei sicuro di eliminare tutti gli inviti selezionati?",
     'Invite accepted' => 'Invito accettato',
-    'Email already present in platform' => 'Email presente in piattaforma'
+    'Email already present in platform' => 'Email presente in piattaforma',
+    'Invia massivamente le mail di invito dei <strong>record selezionati</strong>' => 'Invia massivamente le mail di invito dei <strong>record selezionati</strong>'
 ];

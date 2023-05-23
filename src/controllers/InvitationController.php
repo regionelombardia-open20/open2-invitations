@@ -136,6 +136,7 @@ class InvitationController extends base\InvitationController
             'labelManage' => $labelManage,
             'titleManage' => $titleManage,
             'urlCreate' => $urlCreate,
+            'containerFullWidth' => true,
         ];
 
         if (!parent::beforeAction($action)) {

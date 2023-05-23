@@ -63,7 +63,8 @@ return [
     'Re-send invitation' => 'Re-send invitation',
     'Re-send' => 'Re-send',
     'Selection' => 'Selection',
-    'Send all selected' => 'Send all selected',
+    'Send all selected' => 'Massive sending',
+    "Delete all selected" => "Delete imported",
     'Send invitation' => 'Send invitation',
     '#send_invitation_one_invite_allowed_message' => "Multiple invitation to the same email not allowed",
     '#send_invitation_one_invite_allowed_message_confirm' => "It is not allowed to send an invitation more than once to the same email",
@@ -71,7 +72,7 @@ return [
     '#subject-invite' => '{platformName}: a platform for who does innovation',
     'Surname' => 'Surname',
     '#text_email_invitation0' => "{sender} wants to invite you to register and to collaborate on the {platformName}.",
-    '#text_email_invitation1' => "To have a fast registration the fields are going to be pre-compiled your data, you can modify them whenever you want. Also, a short guidebook will help you to use the platform easy and quick",
+    '#text_email_invitation1' => "To have a fast registration the fields are going to be pre-compiled your data, you can modify them whenever you want. ",
     '#text_email_invitation2' => "You can have the best from the {platformName} platform, you can meet other professionals; subscribe and participate to the development of innovative projects",
     '#text_email_invitation3' => "The {platformName} platform is a cooperative tool used to facilitate meetings between people that works with innovation, the objective is to promote the creation of innovative communities used to face new strategic challenges for the development in the industry, economy and social area.",
     'This notification was sent?' => 'Sended invitation',
@@ -97,4 +98,5 @@ return [
     'Cancel' => 'Cancel',
     'Reset' => 'Cancel',
     '{sentInvitations} invitations sent successfully' => '{sentInvitations} invitations sent successfully',
+    'Invia massivamente le mail di invito dei <strong>record selezionati</strong>' => 'Massively send the invitation emails of the <strong> selected records </strong>'
 ];
