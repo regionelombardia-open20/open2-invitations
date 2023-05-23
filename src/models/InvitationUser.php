@@ -26,9 +26,9 @@ use yii\helpers\ArrayHelper;
  */
 class InvitationUser extends \open20\amos\invitations\models\base\InvitationUser
 {
-    public static function getEditFields()
+    public function getEditFields()
     {
-        $labels = self::attributeLabels();
+        $labels = $this->attributeLabels();
         
         return [
             [
