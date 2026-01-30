@@ -35,7 +35,7 @@ return [
     'Invitation' => 'Invitation',
     'Invitation addressed to {nameSurname}' => 'Invitation addressed to {nameSurname}',
     'Invitation already sended' => 'Invitation already sended',
-    '#invitation-email-end' => 'This mail was sent by the site {site}.',
+    '#invitation-email-end' => 'This email was sent by the site {site}.',
     '#invitation_form_error' => 'Invitation contanis errors: check the field entry',
     'Invitations' => 'Invitations',
     'Invitations sent:' => 'Invitations sent:',

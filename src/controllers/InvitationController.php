@@ -142,7 +142,7 @@ class InvitationController extends base\InvitationController
             'labelManage' => $labelManage,
             'titleManage' => $titleManage,
             'urlCreate' => $urlCreate,
-            'containerFullWidth' => true,
+            //'containerFullWidth' => true,
         ];
 
         if (!parent::beforeAction($action)) {
@@ -263,8 +263,8 @@ class InvitationController extends base\InvitationController
 
     /**
      * @return \yii\console\Response|\yii\web\Response
-     * @throws \PHPExcel_Exception
-     * @throws \PHPExcel_Writer_Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      * @throws \yii\base\Exception
      */
     public function actionDownloadImportTemplate()
@@ -285,12 +285,12 @@ class InvitationController extends base\InvitationController
     }
 
     /**
-     * @throws \PHPExcel_Exception
-     * @throws \PHPExcel_Writer_Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
     private function createImportTemplate($path)
     {
-        $objPHPExcel = new \PHPExcel();
+        $objPHPExcel = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $objPHPExcel->setActiveSheetIndex(0);
         $objPHPExcel->getActiveSheet()->SetCellValue('A1', 'EMAIL');
         $objPHPExcel->getActiveSheet()->SetCellValue('B1', 'NOME');
@@ -299,7 +299,7 @@ class InvitationController extends base\InvitationController
         if($this->invitationsModule->enableFiscalCode){
             $objPHPExcel->getActiveSheet()->SetCellValue('E1', 'CODICE FISCALE');
         }
-        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+        $objWriter = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($objPHPExcel);
         $objWriter->save($path);
     }
 

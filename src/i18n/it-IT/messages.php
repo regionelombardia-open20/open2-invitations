@@ -35,7 +35,7 @@ return [
     'Invitation' => 'Invito',
     'Invitation addressed to {nameSurname}' => 'Invito indirizzato a {nameSurname}',
     'Invitation already sended' => 'Invito già spedito',
-    '#invitation-email-end' => 'Questa mail è stata inviata dalla piattaforma {site}.',
+    '#invitation-email-end' => 'Questa email è stata inviata dalla piattaforma {site}.',
     '#invitation_form_error' => "L'invito contiene degli errori: controllare i campi inseriti",
     'Invitations sent:' => 'Inviti spediti:',
     'Invitations' => 'Inviti',

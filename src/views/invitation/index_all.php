@@ -49,7 +49,11 @@ $js = <<<JS
             .find('#modal_content')
             .load($(this).attr('value'));
     });
-
+    $(document).on('click','a[data-action=re-send]', function() {
+        $('#modal_sent').modal('show')
+            .find('#modal_content')
+            .load($(this).attr('value'));
+    });
 JS;
 
 $this->registerJs($js);
@@ -187,15 +191,18 @@ $this->registerJs($js);
                                                 ]),
                                                 'class' => 'btn btn-tools-secondary re-send',
                                                 'title' => Module::t('amosinvitations', 'Re-send invitation'),
+                                                'data-action' => 're-send',
                                             ];
                                             if ($retArray['present']) {
                                                 $options['disabled'] = true;
                                                 $options['title'] = $retArray['message'];
                                                 $options['class'] = 'btn btn-tools-secondary';
+                                                unset($options['data-action']);
                                             } elseif (!empty($invitationsModule->preventBombSendingHours) && $model->alreadySended($model->invitationUser->email, $invitationsModule->preventBombSendingHours)){
                                                 $options['disabled'] = true;
                                                 $options['title'] = Module::t('amosinvitations', '#user_prevent_bomb_sending', ['preventBombSendingHours' => $invitationsModule->preventBombSendingHours]);
                                                 $options['class'] = 'btn btn-tools-secondary';
+                                                unset($options['data-action']);
                                             }
                                             $btn = Html::a(AmosIcons::show('mail-send'), 'javascript:void(0)', $options);
                                             return $btn;

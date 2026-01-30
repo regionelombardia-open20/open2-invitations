@@ -165,8 +165,8 @@ class InvitationController extends CrudController
             if (!empty($submitImport)) {
                 if ((isset($_FILES['import-file']['tmp_name']) && (!empty($_FILES['import-file']['tmp_name'])))) {
                     $inputFileName = $_FILES['import-file']['tmp_name'];
-                    $inputFileType = \PHPExcel_IOFactory::identify($inputFileName);
-                    $objReader = \PHPExcel_IOFactory::createReader($inputFileType);
+                    $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($inputFileName);
+                    $objReader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($inputFileType);
                     $objPHPExcel = $objReader->load($inputFileName);
                     
                     $sheet = $objPHPExcel->getSheet(0);
@@ -366,7 +366,7 @@ class InvitationController extends CrudController
         // for messagge bombing!
         if (!empty($this->invitationsModule->preventBombSendingHours)
             && $invitation->alreadySended($invitation->invitationUser->email, $this->invitationsModule->preventBombSendingHours)){
-            throw new AmosMessageBombAttemptsException('Parameter preventBombSendingHours:' . $this->invitationsModule->preventBombSendingHours);
+            Yii::$app->getSession()->addFlash('danger', Module::t('amosinvitations', 'Inviti non invitati per evitare spam. riprovare fra {ore} ore',['ore' =>$this->invitationsModule->preventBombSendingHours]));
         }
 
         if (!empty($invitation)) {
@@ -597,7 +597,7 @@ class InvitationController extends CrudController
     {
         if (!empty($this->invitationsModule->preventBombSendingHours)
             && $invitation->alreadySended($invitation->invitationUser->email, $this->invitationsModule->preventBombSendingHours)){
-            throw new AmosMessageBombAttemptsException('Parameter preventBombSendingHours:' . $this->invitationsModule->preventBombSendingHours);
+            Yii::$app->getSession()->addFlash('danger', Module::t('amosinvitations', 'Inviti non invitati per evitare spam. riprovare fra {ore} ore',['ore' =>$this->invitationsModule->preventBombSendingHours]));
         }
 
         /** @var Invitation $newInvitation */
