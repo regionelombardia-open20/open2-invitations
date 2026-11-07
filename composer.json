@@ -1,5 +1,6 @@
 {
     "name": "open20/amos-invitations",
+    "license": "GPL-3.0-or-later",
     "description": "System to invite persons to platform",
     "keywords": ["amos", "yii2", "invitations"],
     "homepage": "http://www.open20.it/",
